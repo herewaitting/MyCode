@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            window.onload = () => {
+                Cesium.buildModuleUrl("");
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+
+                function updateStyle(){
+                    layer.updateStyle({
+                            color: options.color,
+                            speed: options.speed, //动画速度
+                            radius: options.radius,
+                            bloom: options.bloom,
+                            brightness: options.brightness,
+                            condition: [
+                                {
+                                    condition: "{{id}} == 'stc1'",
+                                    style: {
+                                        color: "blue",
+                                        radius:1000
+                                    }
+                                }
+                            ]
+                        });
+                }
+
+                function Options(){
+                    this.color = "#ff00ff";
+                    this.speed = 5;
+                    this.radius = 200;
+                    this.bloom = true;
+                    this.brightness = 0;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options, "color").onFinishChange((val) => {
+                    options.color = val;
+                    updateStyle();
+                });
+
+                gui.add(options,"speed").min(1).max(20).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"radius").min(100).max(1000).step(100).onFinishChange(function(value){
+                    options.radius = value;
+                    updateStyle();
+                });
+                gui.add(options,"bloom").onFinishChange(function(value){
+                    options.bloom = value;
+                    updateStyle();
+                });
+                gui.add(options,"brightness").min(0).max(500).step(1).onChange(function(value){
+                        options.brightness = value;
+                        updateStyle();
+                    });
+
+                    var tilebm = kvmapInstance.layerManager.addLayer("Building", "WhiteTiles", {
+                    style: {
+                            // url: "https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            // url: "https://10.68.8.20/kmap-server/sanyuansancun/tileset.json",
+                            // url: "http://10.67.0.56:8000/stc/tileset.json",
+                            // url: "http://10.68.8.229:9180/kmap-server/baimo/suzhou/tileset.json",
+                            url: "https://10.68.8.229:9181/kmap-server/baimo/suzhoustc/tileset.json",
+                            // url: "http://106.12.93.244/data/3dtiles/sztest/tileset.json",
+                            // url:"../static/tiles/tileset.json",
+                            style : "",
+                            maximumScreenSpaceError : 1,
+                            // mixColor  : "#ffffff",
+                            // baseColor: "#3a777f",
+                            baseColor  : "rgba(2,2,6,1.0)",
+                            // mixColor: "rgba(90,110,222,1.0)",
+                            mixColor: "rgba(42,105,217,1.0)",
+                            // mixColor: "rgba(255,255,255,1.0)",
+                            appearMove : true,
+                            // style : "interval_lines",
+                            height: 0,
+                            bloom: true,
+                            useColor: false,
+                            useGradient: true,
+                            ableCustomLight: false,
+                            mixNum: 10.0,
+                            luminanceAtZenith: 1,
+                            ableEnvironment: false,
+                            KTXUrl: "../static_stc/ktx/gltf_ibl.ktx",
+                            maximumMemoryUsage: 2048,
+                            skipLevelOfDetail: true,
+                            baseScreenSpaceError: 1,
+                            skipScreenSpaceErrorFactor: 16,
+                        }
+                });
+                window.tilebm = tilebm;
+
+
+                let layer = kvmapInstance.layerManager.addLayer("stc", "DomeCover", {
+                    style: {
+                        color: "red",
+                        speed: 1, //动画速度
+                        radius: 20000,
+                        // condition: [
+                        //     {
+                        //         condition: "{{id}} == 'stc1'",
+                        //         style: {
+                        //             color: "yellow",
+                        //             radius: 400
+                        //         }
+                        //     }
+                        // ]
+                    }
+                });
+                window.layer = layer;
+                layer.setData([
+                    {
+                        longitude: 121.4743152757169,
+                        latitude: 31.232720898455653,
+                        id: "stc1"
+                    }
+                ]);
+                
+                
+
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

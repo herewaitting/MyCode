@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <img src="../static_stc/img/loading.svg" alt="" id="stcsvg">
+        <script>
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+                function Options(){
+                    return {
+                        radius: 50,
+                        topRatio: 1.5,
+                        brightness: 1,
+                        color: "#ff0000",
+                        bloom: true,
+                        ratio: 2,
+                    }
+                }
+                var options = Options();
+                var gui = new dat.GUI();
+                function updateStyle() {
+                    layer.updateStyle({
+                        radius: options.radius,
+                        topRatio: options.topRatio,
+                        brightness: options.brightness,
+                        color: options.color,
+                        ratio: options.ratio,
+                        bloom: options.bloom,
+                        mergeDraw: false,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'point_f1'",
+                                style: {
+                                    ratio: 50,
+                                }
+                            }
+                        ]
+                    });
+                }
+                gui.addColor(options, "color").onFinishChange(function(value) {
+                    options.color =value;
+                    updateStyle();
+                });
+                gui.add(options, "bloom").onFinishChange(function(value) {
+                    options.bloom =value;
+                    updateStyle();
+                });
+                gui.add(options, "radius").min(1).max(500).step(1).onChange(function(value) {
+                    options.radius =value;
+                    updateStyle();
+                });
+                gui.add(options, "topRatio").min(0.1).max(10).step(0.1).onFinishChange(function(value) {
+                    options.topRatio =value;
+                    updateStyle();
+                });
+                gui.add(options, "brightness").min(0.1).max(5).step(0.1).onChange(function(value) {
+                    options.brightness =value;
+                    updateStyle();
+                });
+                gui.add(options, "ratio").min(0.1).max(100).step(1).onChange(function(value) {
+                    options.ratio =value;
+                    updateStyle();
+                });
+                let layer = kvmapInstance.layerManager.addLayer("stc", "AngleRing", {
+                    style: {
+                        id: "stcbb",
+                        radius: 50,
+                        topRatio: 1.5,
+                        brightness: 1,
+                        color: "red",
+                        bloom: true,
+                        mergeDraw: false,
+                        ratio: 2,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'point_f1'",
+                                style: {
+                                    ratio: 10,
+                                }
+                            }
+                        ]
+                    }
+                });
+                // layer.setStyle();
+                layer.setData("http://10.67.0.56:9091/static/geojson/point.json");
+                // layer.addEntityLayer( {
+                //     type: "billboard",
+                //     // data: roadData.points,
+                //     data:"http://10.67.0.56:9091/static/geojson/point.json",
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: true,
+                //         height: 100,
+                //         condition: [
+                //             {
+                //                 condition: "true",
+                //                 style: {
+                //                     scale: 5,
+                //                     imgUrl: "../static_stc/mark/marker.png"
+                //                 }
+                //             }
+                //         ]
+                //     },
+                // });
+
+                window.layer = layer;
+
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

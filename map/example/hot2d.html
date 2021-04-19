@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+
+                const hot1center = {
+                    lon: 120.37356911392753,
+                    lat: 30.797889921789718
+                }
+
+                const hot2center = {
+                    lon: 110.37356911392753,
+                    lat: 30.797889921789718
+                }
+
+                const hotPointNum = 20000;
+                const hotData = [
+                    {
+                        id: "heat1",
+                        points: []
+                    },
+                    {
+                        id: "heat2",
+                        points: []
+                    }
+                ]
+                const fwnum = 1;
+                function prepareHotData(){
+                    for(let i=0;i<hotPointNum;i++){
+                        hotData[0].points.push({
+                            lon: hot1center.lon + Math.random() * fwnum,
+                            lat: hot1center.lat + Math.random() * fwnum,
+                        });
+                        hotData[1].points.push({
+                            lon: hot2center.lon + Math.random() * fwnum,
+                            lat: hot2center.lat + Math.random() * fwnum,
+                        });
+                    }
+                }
+                prepareHotData();
+
+
+
+                window.viewer = kvmapInstance.viewer;
+
+                var layer = kvmapInstance.layerManager.addLayer("Point", "HotMap2D", {
+                    style: {
+                        colorCard : "../static/img/sedai.png",
+                        pointSize : 100,
+                        alpha : 1,
+                        showNum : 0,
+                    }
+                });
+                layer.setData("http://10.67.0.56:9091/static/geojson/point.json");
+
+                function updateStyle(){
+                    layer.updateStyle({
+                            alpha: options.alpha,
+                            colorCard: options.colorCard,
+                            showNum: options.showNum,
+                            pointSize: options.pointSize
+                        });
+                }
+
+                function Options(){
+                    this.colorCard = "../static/img/sedai.png";
+                    this.pointSize = 50;
+                    this.alpha = 1;
+                    this.showNum = 0;
+                    
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.add(options, "colorCard").onFinishChange((val) => {
+                    options.colorCard = val;
+                    updateStyle();
+                });
+                gui.add(options,"pointSize").min(1).max(100).step(1).onFinishChange(function(value){
+                    options.pointSize = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"alpha").min(0.01).max(1).step(0.01).onChange(function(value){
+                    options.alpha = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"showNum").min(0).max(1).step(0.01).onChange(function(value){
+                    options.showNum = value;
+                    updateStyle();
+                });
+
+
+                window.layer = layer;
+            };
+
+        </script>
+    </body>
+</html>

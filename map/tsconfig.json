@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "sourceMap": false,
+    "declaration": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "moduleResolution": "node",
+    "charset": "utf-8",
+    "jsx": "react",
+    "strict": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": false,
+    "skipLibCheck": true,
+    "outDir": "./",
+    "lib": [
+      "dom",
+      "es5",
+      "es6",
+      "esnext",
+      "es2015",
+      "es2015.promise",
+    ]
+  },
+  "include": [
+    "src/**/*",
+    "types"
+  ],
+  "exclude": [
+    "node_modules",
+    // "src/worker/czmCore/*",
+    "kvscene",
+  ]
+}

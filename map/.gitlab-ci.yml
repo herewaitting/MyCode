@@ -1,0 +1,18 @@
+cache:
+  paths:
+  - node_modules
+
+stages:
+  - build
+
+job1:
+  stage: build
+  tags:
+    - docs
+  before_script:
+    - echo "start build"
+  script:
+    - npm run docs:build-ci
+  only:
+    - nk_1.0.2
+    - newKvmap

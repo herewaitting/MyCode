@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+                function updateStyle(){
+                    layer1.updateStyle({
+                            color: options.color,
+                            cellAlpha: options.cellAlpha,
+                            width: options.width,
+                            center: {
+                                lon: options.lon,
+                                lat: options.lat
+                            },
+                            lineCount: options.lineCount,
+                            mirrorDefinition: options.mirrorDefinition
+                        });
+                }
+
+
+
+
+                function Options(){
+                    this.color = "#ffffff";
+                    this.efinition = 0.5;
+                    this.width = 2000;
+                    this.lon = 120.69178925547706;
+                    this.lat = 31.303730417644452;
+                    this.lineCount = 10;
+                    this.cellAlpha = 50;
+                    this.mirrorDefinition = 1;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+
+
+                gui.addColor(options, 'color').onChange(function(value){
+                    options.color = value;
+                    updateStyle();
+                });
+                gui.add(options, 'lineCount').min(0).max(100).step(1).onChange(function(value){
+                    options.lineCount = value;
+                    updateStyle();
+                });
+                gui.add(options, 'cellAlpha').min(0).max(1).step(0.01).onChange(function(value){
+                    options.cellAlpha = value;
+                    updateStyle();
+                });
+                gui.add(options, 'mirrorDefinition').min(0).max(1).step(0.01).onChange(function(value){
+                    options.mirrorDefinition = value;
+                    updateStyle();
+                });
+                gui.add(options, 'width').min(0).max(20000).step(1).onChange(function(value){
+                    options.width = value;
+                    updateStyle();
+                });
+                gui.add(options, 'lon').min(-180).max(180).step(1).onChange(function(value){
+                    options.lon = value;
+                    updateStyle();
+                });
+                gui.add(options, 'lat').min(-90).max(90).step(1).onChange(function(value){
+                    options.lat = value;
+                    updateStyle();
+                });
+                const szorigin = {
+                    lat: 31.303730417644452,
+                    lon: 120.69178925547706
+                }
+                // kvmapInstance.sceneControl.setSceneCenter({
+                //     lon: szorigin.lon,
+                //     lat: szorigin.lat,
+                // }, 200);
+
+                    let layer1 = kvmapInstance.layerManager.addLayer("Polygon", "GridMirrorRect", {
+                        style: {
+                            width: 2000,
+                            longitude: szorigin.lon,
+                            latitude: szorigin.lat,
+                            lineCount : 10,
+                            cellAlpha : 0.5,
+                        }
+                    });
+
+                    window.layer1 = layer1;
+            };
+        </script>
+    </body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+
+
+                    let layer = kvmapInstance.layerManager.addLayer("stc", "SoaringPoint", {
+                        baseCfg: {
+                            northOffset: 0,
+                        },
+                        style: {
+                            speed: 3,
+                            bloom:false,
+                            color : "#ffff00",
+                            height: 1000,
+                            brightness: 2,
+                        }
+                    });
+                    layer.setData("http://10.67.0.56:9091/static/geojson/point.json");
+
+                    function updateStyle(){
+                        layer.updateStyle({
+                                baseColor: options.baseColor,
+                                floodColor: options.floodColor,
+                                speed: options.speed,
+                                bloom: options.bloom,
+                                height: options.height,
+                                lineWidth: options.lineWidth,
+                                brightness: 2,
+                            });
+                    }
+
+                    function Options(){
+                        this.baseColor = "#ffff00";
+                        this.floodColor = "#ff0000";
+                        this.speed = 3;
+                        this.bloom = true;
+                        this.height = 300;
+                        this.lineWidth = 2;
+                    }
+                    var options = new Options();
+                    var gui = new dat.GUI();
+                    gui.addColor(options,"baseColor").onFinishChange(function(val){
+                        options.baseColor = val;
+                        updateStyle();
+                    });
+                    gui.addColor(options,"floodColor").onFinishChange(function(val){
+                        options.floodColor = val;
+                        updateStyle();
+                    });
+                    gui.add(options,"speed").min(1).max(10).step(1).onChange(function(value){
+                        options.speed = value;
+                        updateStyle();
+                    });
+                    gui.add(options,"lineWidth").min(1).max(5).step(1).onChange(function(value){
+                        options.lineWidth = value;
+                        updateStyle();
+                    });
+                    gui.add(options,"height").min(100).max(1000).step(100).onFinishChange(function(value){
+                        options.height = value;
+                        updateStyle();
+                    });
+                    gui.add(options,"bloom").onChange(function(value){
+                        options.bloom = value;
+                        updateStyle();
+                    });
+
+                    window.layer = layer;
+                    // setTimeout(function(){
+                    //     layer.entityLayer.located();
+                    // },2000);
+            };
+        </script>
+    </body>
+</html>

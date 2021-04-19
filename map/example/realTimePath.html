@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app">
+            <input type="button" value="上帝视角" id="god">
+            <input type="button" value="第一视角" id="first">
+        </div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                document.getElementById("god").addEventListener("click",function(){
+                    layer.entityLayer.followTarget('stc2', 'god');
+                    // layer.entityLayer.fllowTargetModelId = 'stc';
+                    // layer.entityLayer.fllowViewType = 'god';
+                });
+                document.getElementById("first").addEventListener("click",function(){
+                    layer.entityLayer.followTarget('stc2', 'first');
+                    // layer.entityLayer.fllowTargetModelId = 'stc';
+                    // layer.entityLayer.fllowViewType = 'first';
+                });
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                    function updateStyle(){
+                        layer.updateStyle( {
+                            type: "realTimePath",
+                            style: {
+                                model: options.model,
+                                scale: options.scale,
+                                pathWidth: options.pathWidth, 
+                                pathColor: options.pathColor, 
+                                speed: options.speed, 
+                            },
+                        });
+                    }
+                    function Options(){
+                        this.model = "";
+                        this.scale = 2;
+                        this.speed = 1; 
+                        this.pathWidth = 1;
+                        this.pathColor = "#ff0000";
+                        this.model = "../static/gltf/CesiumMilkTruck.glb";
+                    }
+                    var options = new Options();
+                    var gui = new dat.GUI();
+                    gui.add(options, 'model').onFinishChange(function(value){
+                        options.model = value;
+                        updateStyle();
+                    });
+                    gui.addColor(options,"pathColor").onChange(function(val){
+                        options.pathColor = val;
+                        updateStyle();
+                    });
+                    gui.add(options, 'scale').min(0).max(100).step(1).onChange(function(value){
+                        options.scale = value;
+                        updateStyle();
+                    });
+                    gui.add(options, 'pathWidth').min(0).max(10).step(1).onChange(function(value){
+                        options.pathWidth = value;
+                        updateStyle();
+                    });
+                    gui.add(options, 'speed').min(0).max(10).step(1).onChange(function(value){
+                        options.speed = value;
+                        updateStyle();
+                    });
+                    let pathMoveData = [
+                        {   id:'point_f0',
+                            lon: 121.72550254875654,
+                            lat: 31.224927649720218,
+                            height:0,
+                            time:1583730816354
+                        },
+                        {   id:'point_f1',
+                            lon: 121.73941168702943,
+                            lat: 31.220699961478917,
+                            time:1583730816354,
+                            height:0,
+                        },
+                        {   id:'point_f0',
+                            lon: 121.72850254875654,
+                            lat: 31.224927649720218,
+                            height:0,
+                            time:1583730816354
+                        },
+                        {   id:'point_f1',
+                            lon: 121.73541168702943,
+                            lat: 31.220699961478917,
+                            time:1583730816354,
+                            height:0,
+                        },
+                    ];
+
+
+                    window.stcreal = kvmapInstance.layerManager.addLayer("realLine", "ColorLine", {
+                        style: {
+                            lineWidth: 6,
+                            alpha: 0.5,
+                            speed: 2, // 流动速度
+                            bloom: true, // 是否泛光
+                            baseColor: '#7514ff', // 线基础颜色,
+                            floodColor: '#defc00', // 流动颜色
+                            mergeDraw: false,
+                            groundLine: true,
+                            groundLine: true,
+                        }
+                    });
+
+                    let layer = kvmapInstance.layerManager.addLayer("stc", "ModelPoint", {
+                        baseCfg: {
+                            mergeDraw: false,
+                        },
+                        style: {
+                            scale: 100,
+                            realTime: true,
+                            delayTime: 5,
+                            relationTemplate: ["realLine"],
+                        }
+                    });
+
+                    layer.setData(pathMoveData);
+                    window.layer = layer;
+                    let flag = "go";
+                    let d1Count = 0;
+                    let d2Count = 0;
+
+                    setTimeout(function() {
+                        setInterval(() => {
+                            const d1 = data1.filter((item, i) => i === d1Count);
+                            const d2 = data2.filter((item, i) => i === d2Count);
+                            if (d1Count <= data1.length - 1 &&  flag === "go") {
+                                d1Count++;
+                            } else {
+                                flag = "back";
+                                d1Count--;
+                            }
+                            if (d1Count <= 0 && flag === "back") {
+                                flag = "go";
+                                d1Count++;
+                            }
+                            d2Count++;
+                            if (d2Count > data2.length - 1) {
+                                d2Count = 0;
+                            }
+                            layer.updateData(d1.concat(d2));
+                    }, 5000);
+                        // setInterval(function(){
+                        //     layer.updateData([
+                        //         {   id:'stc1',
+                        //             lon: 121.72350254875654 + Math.random() * 0.001,
+                        //             lat: 31.219699961478917 + Math.random() * 0.001,
+                        //             height:0,
+                        //             time:1583730816354
+                        //         },
+                        //         {   id:'stc1',
+                        //             lon: 121.72350254875654 + Math.random() * 0.001,
+                        //             lat: 31.219699961478917 + Math.random() * 0.001,
+                        //             height:0,
+                        //             time:1583730816354
+                        //         },
+                        //         {   id:'stc1',
+                        //             lon: 121.72350254875654 + Math.random() * 0.001,
+                        //             lat: 31.219699961478917 + Math.random() * 0.001,
+                        //             height:0,
+                        //             time:1583730816354
+                        //         },
+                        //         {   id:'stc2',
+                        //             lon: 121.72550254875654 + Math.random() * 0.001,
+                        //             lat: 31.226927649720218 + Math.random() * 0.001,
+                        //             time:1583730816354,
+                        //             height:0,
+                        //         },
+                        //         {   id:'stc2',
+                        //             lon: 121.72550254875654 + Math.random() * 0.001,
+                        //             lat: 31.226927649720218 + Math.random() * 0.001,
+                        //             time:1583730816354,
+                        //             height:0,
+                        //         },
+                        //         {   id:'stc2',
+                        //             lon: 121.72550254875654 + Math.random() * 0.001,
+                        //             lat: 31.226927649720218 + Math.random() * 0.001,
+                        //             time:1583730816354,
+                        //             height:0,
+                        //         }
+                        //     ]);
+                        // }, 5000);
+                        // layer.trackedPoint = {
+                        //     id: "point_f0",
+                        //     type: "first"
+                        // }
+                    }, 5000);
+
+
+
+            var data1 = [
+            {
+                id: "point_f0",
+                pointId: "point_1",
+                lon: 120.614768,
+                lat: 31.294729,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_2",
+                lon: 120.614356,
+                lat: 31.296211,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_3",
+                lon: 120.614121,
+                lat: 31.297561,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_4",
+                lon: 120.613773,
+                lat: 31.298696,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_5",
+                lon: 120.613492,
+                lat: 31.29976,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_6",
+                lon: 120.613381,
+                lat: 31.300774,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_7",
+                lon: 120.613279,
+                lat: 31.301601,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_8",
+                lon: 120.613109,
+                lat: 31.302296,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_9",
+                lon: 120.613326,
+                lat: 31.30285,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_10",
+                lon: 120.61449,
+                lat: 31.30288,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_11",
+                lon: 120.615399,
+                lat: 31.302972,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_12",
+                lon: 120.616745,
+                lat: 31.302968,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_13",
+                lon: 120.617964,
+                lat: 31.303149,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_14",
+                lon: 120.61855,
+                lat: 31.303209,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_15",
+                lon: 120.619239,
+                lat: 31.303271,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_16",
+                lon: 120.619237,
+                lat: 31.302163,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_17",
+                lon: 120.619345,
+                lat: 31.300624,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_18",
+                lon: 120.619397,
+                lat: 31.299879,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_19",
+                lon: 120.619567,
+                lat: 31.299122,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_20",
+                lon: 120.61964,
+                lat: 31.298437,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_21",
+                lon: 120.619766,
+                lat: 31.297953,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_22",
+                lon: 120.619788,
+                lat: 31.297292,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_23",
+                lon: 120.619966,
+                lat: 31.296516,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_24",
+                lon: 120.620159,
+                lat: 31.295121,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_25",
+                lon: 120.620468,
+                lat: 31.293343,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_26",
+                lon: 120.620812,
+                lat: 31.291631,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_27",
+                lon: 120.620899,
+                lat: 31.290579,
+                height: 0,
+            },
+            {
+                id: "point_f0",
+                pointId: "point_28",
+                lon: 120.621047,
+                lat: 31.289672,
+                height: 0,
+            },
+        ];
+        const data2 = [
+            {
+                id: "point_f1",
+                pointId: "point_1",
+                lon: 120.620274,
+                lat: 31.294121,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_2",
+                lon: 120.620113,
+                lat: 31.295409,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_3",
+                lon: 120.619695,
+                lat: 31.298,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_4",
+                lon: 120.619364,
+                lat: 31.300649,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_5",
+                lon: 120.619074,
+                lat: 31.302678,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_6",
+                lon: 120.618998,
+                lat: 31.303383,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_7",
+                lon: 120.62194,
+                lat: 31.303548,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_8",
+                lon: 120.623633,
+                lat: 31.303685,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_9",
+                lon: 120.624996,
+                lat: 31.303956,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_10",
+                lon: 120.627365,
+                lat: 31.304268,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_11",
+                lon: 120.628253,
+                lat: 31.304277,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_12",
+                lon: 120.628263,
+                lat: 31.302709,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_13",
+                lon: 120.628399,
+                lat: 31.301294,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_14",
+                lon: 120.628437,
+                lat: 31.299902,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_15",
+                lon: 120.62854,
+                lat: 31.298996,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_16",
+                lon: 120.628484,
+                lat: 31.297815,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_17",
+                lon: 120.628586,
+                lat: 31.296461,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_18",
+                lon: 120.628602,
+                lat: 31.295468,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_19",
+                lon: 120.628225,
+                lat: 31.29529,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_20",
+                lon: 120.627195,
+                lat: 31.295122,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_21",
+                lon: 120.626158,
+                lat: 31.295012,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_22",
+                lon: 120.625124,
+                lat: 31.294884,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_23",
+                lon: 120.623838,
+                lat: 31.294709,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_24",
+                lon: 120.622691,
+                lat: 31.294548,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_25",
+                lon: 120.621759,
+                lat: 31.294529,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_26",
+                lon: 120.620926,
+                lat: 31.294303,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_27",
+                lon: 120.620364,
+                lat: 31.294145,
+                height: 0,
+            },
+            {
+                id: "point_f1",
+                pointId: "point_28",
+                lon: 120.620338,
+                lat: 31.294162,
+                height: 0,
+            },
+        ]
+            };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            function moni(){
+                var data1 = [
+                    {
+                        id: "point_f0",
+                        pointId: "point_1",
+                        lon: 120.614768,
+                        lat: 31.294729,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_2",
+                        lon: 120.614356,
+                        lat: 31.296211,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_3",
+                        lon: 120.614121,
+                        lat: 31.297561,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_4",
+                        lon: 120.613773,
+                        lat: 31.298696,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_5",
+                        lon: 120.613492,
+                        lat: 31.29976,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_6",
+                        lon: 120.613381,
+                        lat: 31.300774,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_7",
+                        lon: 120.613279,
+                        lat: 31.301601,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_8",
+                        lon: 120.613109,
+                        lat: 31.302296,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_9",
+                        lon: 120.613326,
+                        lat: 31.30285,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_10",
+                        lon: 120.61449,
+                        lat: 31.30288,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_11",
+                        lon: 120.615399,
+                        lat: 31.302972,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_12",
+                        lon: 120.616745,
+                        lat: 31.302968,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_13",
+                        lon: 120.617964,
+                        lat: 31.303149,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_14",
+                        lon: 120.61855,
+                        lat: 31.303209,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_15",
+                        lon: 120.619239,
+                        lat: 31.303271,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_16",
+                        lon: 120.619237,
+                        lat: 31.302163,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_17",
+                        lon: 120.619345,
+                        lat: 31.300624,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_18",
+                        lon: 120.619397,
+                        lat: 31.299879,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_19",
+                        lon: 120.619567,
+                        lat: 31.299122,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_20",
+                        lon: 120.61964,
+                        lat: 31.298437,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_21",
+                        lon: 120.619766,
+                        lat: 31.297953,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_22",
+                        lon: 120.619788,
+                        lat: 31.297292,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_23",
+                        lon: 120.619966,
+                        lat: 31.296516,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_24",
+                        lon: 120.620159,
+                        lat: 31.295121,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_25",
+                        lon: 120.620468,
+                        lat: 31.293343,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_26",
+                        lon: 120.620812,
+                        lat: 31.291631,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_27",
+                        lon: 120.620899,
+                        lat: 31.290579,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f0",
+                        pointId: "point_28",
+                        lon: 120.621047,
+                        lat: 31.289672,
+                        height: 0,
+                    },
+                ];
+                const data2 = [
+                    {
+                        id: "point_f1",
+                        pointId: "point_1",
+                        lon: 120.620274,
+                        lat: 31.294121,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_2",
+                        lon: 120.620113,
+                        lat: 31.295409,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_3",
+                        lon: 120.619695,
+                        lat: 31.298,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_4",
+                        lon: 120.619364,
+                        lat: 31.300649,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_5",
+                        lon: 120.619074,
+                        lat: 31.302678,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_6",
+                        lon: 120.618998,
+                        lat: 31.303383,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_7",
+                        lon: 120.62194,
+                        lat: 31.303548,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_8",
+                        lon: 120.623633,
+                        lat: 31.303685,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_9",
+                        lon: 120.624996,
+                        lat: 31.303956,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_10",
+                        lon: 120.627365,
+                        lat: 31.304268,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_11",
+                        lon: 120.628253,
+                        lat: 31.304277,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_12",
+                        lon: 120.628263,
+                        lat: 31.302709,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_13",
+                        lon: 120.628399,
+                        lat: 31.301294,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_14",
+                        lon: 120.628437,
+                        lat: 31.299902,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_15",
+                        lon: 120.62854,
+                        lat: 31.298996,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_16",
+                        lon: 120.628484,
+                        lat: 31.297815,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_17",
+                        lon: 120.628586,
+                        lat: 31.296461,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_18",
+                        lon: 120.628602,
+                        lat: 31.295468,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_19",
+                        lon: 120.628225,
+                        lat: 31.29529,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_20",
+                        lon: 120.627195,
+                        lat: 31.295122,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_21",
+                        lon: 120.626158,
+                        lat: 31.295012,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_22",
+                        lon: 120.625124,
+                        lat: 31.294884,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_23",
+                        lon: 120.623838,
+                        lat: 31.294709,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_24",
+                        lon: 120.622691,
+                        lat: 31.294548,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_25",
+                        lon: 120.621759,
+                        lat: 31.294529,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_26",
+                        lon: 120.620926,
+                        lat: 31.294303,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_27",
+                        lon: 120.620364,
+                        lat: 31.294145,
+                        height: 0,
+                    },
+                    {
+                        id: "point_f1",
+                        pointId: "point_28",
+                        lon: 120.620338,
+                        lat: 31.294162,
+                        height: 0,
+                    },
+                ]
+                let flag = "go";
+                    let d1Count = 0;
+                    let d2Count = 0;
+                setInterval(() => {
+                        const d1 = data1.filter((item, i) => i === d1Count);
+                        const d2 = data2.filter((item, i) => i === d2Count);
+                        if (d1Count <= data1.length - 1 &&  flag === "go") {
+                            d1Count++;
+                        } else {
+                            flag = "back";
+                            d1Count--;
+                        }
+                        if (d1Count <= 0 && flag === "back") {
+                            flag = "go";
+                            d1Count++;
+                        }
+                        d2Count++;
+                        if (d2Count > data2.length - 1) {
+                            d2Count = 0;
+                        }
+                        kvmapInstance.layerManager.updateData("bill",d1.concat(d2));
+                }, 5000);
+            }
+            moni();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </script>
+    </body>
+</html>

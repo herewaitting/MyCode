@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+
+                window.viewer = kvmapInstance.viewer;
+
+                function Options(){
+                    this.imgUrl = "../static_stc/mark/star.png";
+                    this.scale = 1;
+                    this.height = 0.5;
+                    this.bloom = false;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                function updateStyle() {
+                    layer.updateStyle({
+                        imgUrl: options.imgUrl, //图片
+                        scale: options.scale, //缩放
+                        height: options.height,
+                        bloom: options.bloom,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'point_f1'",
+                                style: {
+                                    scale: 1,
+                                    imgUrl: "../static_stc/img/sort.gif"
+                                }
+                            }
+                        ]
+                    });
+                }
+                gui.add(options, "imgUrl").onFinishChange(function(value) {
+                    options.imgUrl =value;
+                    updateStyle();
+                });
+                gui.add(options, "bloom").onFinishChange(function(value) {
+                    options.bloom =value;
+                    updateStyle();
+                });
+                gui.add(options, "scale").min(0.1).max(5).step(0.2).onChange(function(value) {
+                    options.scale =value;
+                    updateStyle();
+                });
+                gui.add(options, "height").min(0.1).max(500).step(5).onChange(function(value) {
+                    options.height =value;
+                    updateStyle();
+                });
+
+                let layer = kvmapInstance.layerManager.addLayer("stc", "VideoBillboard", {
+                    style: {
+                        id: "stcbb",
+                        scale: 0.5, //缩放
+                        bloom: false,
+                        height: 0,
+                        near: 0,
+                        far: 100000,
+                        size: 500,
+                        imgScale: 0.5
+                    },
+                });
+                layer.setData("http://10.67.0.56:9091/static/geojson/point.json");
+
+                var mouseClickHandler = new Cesium.ScreenSpaceEventHandler(
+                    viewer.scene.canvas,
+                );
+                mouseClickHandler.setInputAction((
+                    movement
+                ) => {
+                    console.log("拾取");
+                    const pickedFeature = viewer.scene.pick(movement.position);
+                    console.log(pickedFeature);
+                },
+                Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+                window.layer = layer;
+                // setTimeout(function(){
+                //     layer.entityLayer.located();
+                // },2000);
+            };
+        </script>
+    </body>
+</html>

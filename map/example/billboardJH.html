@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+        <script src="./data/xqd.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <img src="../static_stc/img/loading.svg" alt="" id="stcsvg">
+        <script>
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                // var stc = kvmapInstance.initEarth(document.getElementById("app"), {
+                //     cesiumViewerCfg: {},
+                //     initMapOpts: {
+                //         beautifyFilter: {
+                //             blend: true,
+                //             blendColor: "red",
+                //             alpha: 0.5,
+                //         },
+                //         imageryProvider: "",
+                //         initAnimation: {
+                //             flyTo: false,
+                //             earthRotate: false,
+                //         },
+                //         angleOfViewCfg: {
+                //             lon: 121.60976973871132,
+                //             lat: 31.109214738816334,
+                //             height: 22160.604766729462,
+                //             heading: 359.998126822114,
+                //             pitch: -59.99968834636347,
+                //         },
+                //         tilesCfg: {
+                //             // url:"https://lab.earthsdk.com/model/702aa950d03c11e99f7ddd77cbe22fea/tileset.json",
+                //             url:"https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                //             height: 0,
+                //         },
+                //         dubuggerMode: true,
+                //     },
+                // });
+
+                function Options(){
+                    return {
+                            minNum: 2, // 最小聚合数
+                            size: 50, // 聚合尺寸，单位像素
+                            able: true, // 是否开启聚合
+                            bill: { // 广告牌
+                                imgUrl: "../static/img/icon-device.png",
+                                scale: 1.0
+                            },
+                            pin: { // 聚合展现的广告牌
+                                size: 80,
+                                imgUrl: "../static/img/icon-device-wran.png",
+                            },
+                            text: { // 点位名称
+                                show: true,
+                                offset: {
+                                    x: 0,
+                                    y: -25,
+                                },
+                                color: "red",
+                                size: 20,
+                            },
+                            label: { // 聚合展现的数字
+                                show: true,
+                                offset: {
+                                    x: 20,
+                                    y: 0,
+                                },
+                                color: "red",
+                                scale: 0.8,
+                            },
+                            height: 0, // 点位高度
+                            condition: [],
+                        }
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                function updateStyle() {
+                    layer.updateStyle({
+                        type: "polymerize",
+                        style: {
+                            minNum: options.minNum, // 最小聚合数
+                            size: options.size, // 聚合尺寸，单位像素
+                            able: options.able, // 是否开启聚合
+                            bill: options.bill,
+                            pin: options.pin,
+                            text: options.text,
+                            label: options.label,
+                            height: options.height, // 点位高度
+                            condition: [],
+                        },
+                    });
+                }
+
+
+                const jharr = [];
+                XQD.forEach(element => {
+                    jharr.push({
+                        lon: element.coordinates[0],
+                        lat: element.coordinates[1],
+                        name: "史廷春"
+                    });
+                });
+
+
+                // gui.add(options, "imgUrl").onFinishChange(function(value) {
+                //     options.imgUrl =value;
+                //     updateStyle();
+                // });
+                // gui.add(options, "bloom").onFinishChange(function(value) {
+                //     options.bloom =value;
+                //     updateStyle();
+                // });
+                // gui.add(options, "scale").min(0.1).max(5).step(0.2).onChange(function(value) {
+                //     options.scale =value;
+                //     updateStyle();
+                // });
+                // gui.add(options, "height").min(0.1).max(500).step(5).onChange(function(value) {
+                //     options.height =value;
+                //     updateStyle();
+                // });
+                // stc.then(function() {
+                    let layer = kvmapInstance.addLayer("Point", "layer5");
+                    layer.addEntityLayer( {
+                        type: "polymerize",
+                        // data: roadData.points,
+                        data:jharr,
+                        style: {
+                            minNum: 2, // 最小聚合数
+                            size: 10, // 聚合尺寸，单位像素
+                            able: true, // 是否开启聚合
+                            bill: { // 广告牌
+                                imgUrl: "../static/img/icon-device.png",
+                                scale: 1.0
+                            },
+                            pin: { // 聚合展现的广告牌
+                                size: 60,
+                                imgUrl: "../static/img/icon-device-wran.png",
+                            },
+                            text: { // 点位名称
+                                show: true,
+                                offset: {
+                                    x: 0,
+                                    y: -25,
+                                },
+                                color: "red",
+                                size: 20,
+                            },
+                            label: { // 聚合展现的数字
+                                show: true,
+                                offset: {
+                                    x: 20,
+                                    y: 0,
+                                },
+                                color: "red",
+                                scale: 0.8,
+                            },
+                            height: 0, // 点位高度
+                            condition: [],
+                        },
+                    });
+
+                    window.layer = layer;
+                    setTimeout(function(){
+                        layer.located();
+                    },2000);
+                    
+                // });
+            };
+        </script>
+    </body>
+</html>

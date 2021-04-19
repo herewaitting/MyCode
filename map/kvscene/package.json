@@ -1,0 +1,12 @@
+{
+  "name": "@ksh/kvscene",
+  "version": "1.0.2-beta96",
+  "description": "基于cesium的拓展包",
+  "types": "dist/index.d.ts",
+  "main": "./dist/kvscene.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "shitingchun",
+  "license": "ISC"
+}

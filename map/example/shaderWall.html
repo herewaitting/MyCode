@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvmap.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvmap) {
+                    return;
+                }
+                const kvmapInstance = new kvmap.KVMap();
+                window.kvmapInstance = kvmapInstance;
+                var stc = kvmapInstance.initEarth(document.getElementById("app"), {
+                    cesiumViewerCfg: {},
+                    initMapOpts: {
+                        beautifyFilter: {
+                            blend: true,
+                            blendColor: "red",
+                            alpha: 0.5,
+                        },
+                        imageryProvider: "",
+                        initAnimation: {
+                            flyTo: false,
+                            earthRotate: false,
+                        },
+                        angleOfViewCfg: {
+                            lon: 121.60976973871132,
+                            lat: 31.109214738816334,
+                            height: 22160.604766729462,
+                            heading: 359.998126822114,
+                            pitch: -59.99968834636347,
+                        },
+                        tilesCfg: {
+                            // url:"https://lab.earthsdk.com/model/702aa950d03c11e99f7ddd77cbe22fea/tileset.json",
+                            url:"https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            height: 0,
+                        },
+                            dubuggerMode: true,
+                    },
+                });
+                stc.then(function() {
+                    
+
+                    const wallData = [{
+                        id: "stcwall",
+                        points: [
+                        {
+                            lon:121.50843118073439,
+                            lat:31.236240694308645,
+                            height:0
+                        }
+
+                        ,
+                        {
+                            lon:121.4949638274033,
+                            lat:31.23268692936606,
+                            height:0
+                        }
+                        ,
+                        {
+                            lon:121.49075630220453,
+                            lat:31.237137939807795,
+                            height:0
+                        },
+                        {
+                            lon:121.48908169024442,
+                            lat:31.24119430424044,
+                            height:0
+                        },
+                        {
+                            lon:121.49380319963136,
+                            lat:31.245482565203346,
+                            height:0
+                        },
+                        {
+                            lon:121.50087726002816,
+                            lat:31.24796874409237,
+                            height:0
+                        },
+                        {
+                            lon:121.50843118073439,
+                            lat:31.236240694308645,
+                            height:0
+                        }
+                    ]
+                    }];
+
+
+                    function updateStyle(){
+                        layer.updateStyle( {
+                            type: "shaderWall",
+                            style: {
+                                baseColor: options.baseColor,
+                                height: options.height,
+                                repeat: options.repeat,
+                                imgUrl: options.imgUrl,
+                                speed: options.speed
+                            },
+                        });
+                    }
+
+                    function Options(){
+                        // this.baseColor = "#ffffff";
+                        this.height = 500;
+                        this.repeat = 4;
+                        this.imgUrl = '../static/img/circular2.png';
+                        this.speed = 2;
+                    }
+                    var options = new Options();
+                    var gui = new dat.GUI();
+                    // gui.addColor(options, 'baseColor').onFinishChange(function(value){
+                    //     options.color = value;
+                    //     updateStyle();
+                    // });
+
+                    gui.add(options, 'repeat').min(1).max(50).step(2).onChange(function(value){
+                        options.repeat = value;
+                        updateStyle();
+                    });
+                    gui.add(options, 'speed').min(1).max(50).step(2).onChange(function(value){
+                        options.speed = value;
+                        updateStyle();
+                    });
+
+                    gui.add(options, 'height').min(20).max(500).step(10).onFinishChange(function(value){
+                        options.height = value;
+                        updateStyle();
+                    });
+                    
+                    window.layer = kvmapInstance.addLayer('Polygon','layer10');
+                    layer.addEntityLayer({
+                        type:'shaderWall',
+                        data:wallData,
+                        style:{
+                            height:500,
+                            repeat: 4,
+                            baseColor: 'yellow',
+                            speed: 2
+                        }
+                    });
+
+                    window.layer = layer;
+                    setTimeout(function(){
+                        layer.entityLayer.located();
+                    },2000);
+                    
+                });
+            };
+        </script>
+    </body>
+</html>

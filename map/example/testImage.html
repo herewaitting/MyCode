@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 560px;
+                width: 1000px;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <img src="../static_stc/img/loading.svg" alt="" id="stcsvg">
+        <script>
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                function zeroPad(num, len, radix) {
+                    let str = num.toString(radix || 10);
+                    while (str.length < len) {
+                        str = "0" + str;
+                    }
+                    return str;
+                }
+                const mmm = 18;
+                kvmapInstance.viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+                    url: "http://2.46.3.209:8081/vector_pc/_alllayers/{fz}/{fy}/{fx}.png",
+                    // parameters : {
+                    //     transparent : true,     //是否透明
+                    //     format : 'image/png',
+                    //     srs: 'EPSG:4326',
+                    //     styles:''
+                    // },
+                    // rectangle: Cesium.Rectangle.fromDegrees(119.89, 30.75, 121.406, 32.08),
+                    tilingScheme: new Cesium.GeographicTilingScheme({
+                        numberOfLevelZeroTilesX: 7,
+                        numberOfLevelZeroTilesY: 6,
+                        rectangle: Cesium.Rectangle.fromDegrees(119.89, 30.75, 121.406, 32.08),
+                    }),
+                    customTags: {
+                        fx: (imageryProvider, x, y, level) => {
+                            const a = imageryProvider.tilingScheme.getNumberOfXTilesAtLevel(level) - x - 1;
+                            const fx = zeroPad(x, 8, 16);
+                            return `C${fx}`;
+                        },
+                        fy: (imageryProvider, x, y, level) => {
+                            // var fy = zeroPad(y, 8, 16);
+                            // return `R${fy}`;
+                            var zz = imageryProvider.tilingScheme.getNumberOfYTilesAtLevel(level) - y - 1;
+                            var fy = zeroPad(y, 8, 16);
+                            return `R${fy}`;
+                        },
+                        fz: (imageryProvider, x, y, level) => {
+                            const fz = zeroPad(level, 2, 10);
+                            return `L${fz}`;
+                        },
+                    },
+                }));
+                
+            };
+
+
+            function distanceToBoundingSphere3D(camera, radius) {
+                var frustum = camera.frustum;
+                var tanPhi = Math.tan(frustum.fovy * 0.5);
+                var tanTheta = frustum.aspectRatio * tanPhi;
+                return Math.max(radius / tanTheta, radius / tanPhi);
+            }
+        </script>
+    </body>
+</html>

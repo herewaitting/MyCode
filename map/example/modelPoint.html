@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            const IntervalLineShaderText =
+            // "float stc_pl = fract(czm_frameNumber / 120.0) * 3.14159265 * 2.0;\n" +
+            // "float stc_sd = (abs(v_stcVertex.z) + 150.0) / 200.0 + sin(stc_pl) * 0.2;\n" +
+            // "gl_FragColor *= vec4(stc_sd, stc_sd, stc_sd, 1.0);\n" +
+
+            // "gl_FragColor *= vec4(1.2);\n" +
+            "float stc_a13 = fract(czm_frameNumber / 360.0);\n" +
+            "float stc_h = fract(abs(v_stcVertex.z) / 50.0);\n" +
+            "if(stc_h>0.05)return;\n" +
+            "gl_FragColor.rgb += gl_FragColor.rgb * (1.0 - stc_h);\n";
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+                
+                const modelUrlll = "../static_stc/gltf/material/Jinghui_new.gltf";
+
+                function updateStyle(){
+                    layer.updateStyle({
+                            // modelUrl: options.modelUrl, //模型
+                            speed: options.speed, //缩放
+                            ableRotate: options.ableRotate, //缩放
+                            tX: options.tX,
+                            tY: options.tY,
+                            tZ: options.tZ,
+                            scale: options.scale,
+                            angle: options.angle,
+                            condition: [
+                            {
+                                condition: "{{id}} == 'stc22'",
+                                style: {
+                                    color: "yellow",
+                                }
+                            }
+                        ]
+                        });
+                }
+                Cesium.ExpandBySTC.Gltf.ableUvMove = true;
+                function Options(){
+                    this.modelUrl = "../static_stc/gltf/suzhouzhongxin.gltf", //模型
+                    this.scale = 0.855;
+                    this.speed = 1;
+                    this.angle = 0;
+                    this.tZ = 0;
+                    this.ableRotate = false;
+                    this.tX = 0;
+                    this.tY = 0;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.add(options, 'ableRotate').onChange(function(value){
+                    options.ableRotate = value;
+                    updateStyle();
+                });
+                gui.add(options, 'scale').min(0).max(1000).step(0.0001).onChange(function(value){
+                    options.scale = value;
+                    updateStyle();
+                });
+                gui.add(options, 'angle').min(0).max(360).step(1).onChange(function(value){
+                    options.angle = value;
+                    updateStyle();
+                });
+                gui.add(options, 'tZ').min(-200).max(200).step(0.1).onChange(function(value){
+                    options.tZ = value;
+                    updateStyle();
+                });
+                gui.add(options, 'speed').min(1).max(10).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+                gui.add(options, 'tX').min(-1000).max(1000).step(0.1).onChange(function(value){
+                    options.tX = value;
+                    updateStyle();
+                });
+                gui.add(options, 'tY').min(-1000).max(1000).step(0.1).onChange(function(value){
+                    options.tY = value;
+                    updateStyle();
+                });
+                const szorigin = {
+                    lat: 31.303730417644452,
+                    lon: 120.69178925547706
+                }
+
+
+                let layer = kvmapInstance.layerManager.addLayer("stc", "ModelPoint", {
+                    style: {
+                        // modelUrl: "../static_stc/gltf/3Dicon/Hospital_new.gltf", //模型
+                        // modelUrl: "../static_stc/gltf/ceshi.gltf", //模型
+                        brightness: 1,
+                        alpha: 100,
+                        scale: 100,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'stc'",
+                                style: {
+                                    color: "yellow",
+                                }
+                            }
+                        ]
+                    }
+                });
+                layer.setData([
+                        {
+                            id: "stc",
+                            longitude: szorigin.lon,
+                            latitude: szorigin.lat,
+                        },
+                    ]);
+
+                window.layer = layer;
+
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

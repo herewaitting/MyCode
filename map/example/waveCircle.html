@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+            .cesium-viewer {
+                overflow: auto !important;
+            }
+            /* #app,.cesium-viewer, .cesium-widget, .cesium-viewer-cesiumWidgetContainer {
+                width: 500px !important;
+                height: 500px !important;
+                float:left;
+            } */
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <div id="app1"></div>
+        <div id="app2"></div>
+        <div id="app3"></div>
+        <div id="app4"></div>
+        <div id="app5"></div>
+        <div id="app6"></div>
+        <div id="app7"></div>
+        <div id="app8"></div>
+        <div id="app9"></div>
+        <div id="app10"></div>
+        <script>
+            window.onload = () => {
+                Cesium.buildModuleUrl("");
+                if (!window.kvscene) {
+                    return;
+                }
+                Cesium.Camera.DEFAULT_VIEW_RECTANGLE = new Cesium.Rectangle(1.7829973881398438, 0.3842196387115912, 2.2272832685785895, 0.6985528496801465);
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                // const kvmapInstance1 = new kvscene.KVScene3D({
+                //     el: "app1"
+                // });
+                // const kvmapInstance2 = new kvscene.KVScene3D({
+                //     el: "app2"
+                // });
+                // const kvmapInstance3 = new kvscene.KVScene3D({
+                //     el: "app3"
+                // });
+                // const kvmapInstance4 = new kvscene.KVScene3D({
+                //     el: "app4"
+                // });
+                // const kvmapInstance5 = new kvscene.KVScene3D({
+                //     el: "app5"
+                // });
+                // const kvmapInstance6 = new kvscene.KVScene3D({
+                //     el: "app6"
+                // });
+                // const kvmapInstance7 = new kvscene.KVScene3D({
+                //     el: "app7"
+                // });
+                // const kvmapInstance8 = new kvscene.KVScene3D({
+                //     el: "app8"
+                // });
+                // const kvmapInstance9 = new kvscene.KVScene3D({
+                //     el: "app9"
+                // });
+                // const kvmapInstance10 = new kvscene.KVScene3D({
+                //     el: "app10"
+                // });
+                window.kvmapInstance = kvmapInstance;
+                
+
+                function updateStyle(){
+                    layer.updateStyle({
+                            color: options.color,
+                            speed: options.speed, //动画速度
+                            count: options.count, //扩散圈数
+                            gradient: options.gradient, //渐变系数
+                            radius: options.radius,
+                            brightness: options.brightness,
+                            realTime: true,
+                            templateLayer: ["any"],
+                            condition: [
+                                {
+                                    condition: "{{id}} == 'stc1'",
+                                    style: {
+                                        color: "yellow",
+                                        radius: 400,
+                                        flash: true,
+                                    }
+                                }
+                            ]
+                        });
+                }
+
+                function Options(){
+                    this.color = "#ff0000";
+                    this.speed = 5;
+                    this.count = 3;
+                    this.gradient = 3;
+                    this.radius = 200;
+                    this.brightness = 1;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options, "color").onFinishChange((val) => {
+                    options.color = val;
+                    updateStyle();
+                });
+
+                gui.add(options,"speed").min(1).max(20).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+                gui.add(options,"count").min(1).max(20).step(1).onChange(function(value){
+                    options.count = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"gradient").min(1).max(20).step(1).onChange(function(value){
+                    options.gradient = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"radius").min(100).max(1000).step(100).onFinishChange(function(value){
+                    options.radius = value;
+                    updateStyle();
+                });
+                gui.add(options,"brightness").min(0).max(10).step(0.1).onChange(function(value){
+                    options.brightness = value;
+                    updateStyle();
+                });
+
+
+                let layer = kvmapInstance.layerManager.addLayer("stc", "WaveCircle", {
+                    baseCfg: {
+                        mergeDraw: false,
+                        minVisibleLevel: 7,
+                        maxVisibleLevel: 10,
+                        enableLevlControl: true,
+                    },
+                    style: {
+                        color: "red",
+                        speed: 5, //动画速度
+                        count: 3, //扩散圈数
+                        gradient: 3, //渐变系数
+                        radius: 2000,
+                        realTime: true,
+                        templateLayer: ["any"],
+                        delayTime: 5,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'stc1'",
+                                style: {
+                                    color: "yellow",
+                                    radius: 4000,
+                                    flash: true,
+                                }
+                            }
+                        ]
+                    }
+                });
+                //121.49728,31.24332
+                layer.setData([
+                            {
+                                longitude: 121.49728,
+                                latitude: 31.24332,
+                                id: "stc1"
+                            },
+                            {
+                                longitude: 121.52050254875654,
+                                latitude: 31.224927649720218,
+                                id: "stc2"
+                            },
+                        ]);
+
+                        
+
+
+                layer.viewer.scene.camera.moveEnd.addEventListener(function(){
+                    Cesium.ExpandBySTC.ssss = true;
+                });
+                layer.viewer.scene.camera.moveStart.addEventListener(function(){
+                    Cesium.ExpandBySTC.ssss = false;
+                })
+                
+                
+
+                window.layer = layer;
+                setTimeout(function(){
+                    // layer.located();
+                },2000);
+
+
+                const googleProvider = new Cesium.UrlTemplateImageryProvider({
+                        // url : "https://10.67.24.180:8001/%E8%8B%8F%E5%B7%9E%E5%9C%B0%E5%9B%BE%E5%8E%9F%E8%AF%9D%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E%E5%A2%A8%E5%8D%A1%E6%89%98%E5%8E%9F%E5%A7%8B%E7%93%A6%E7%89%87/{z}/{x}/{y}.png",
+                        url: "http://10.67.24.180:8000/{z}/{x}/{y}.png",
+                        maximumLevel: 18,
+                        hasAlphaChannel: false,
+                });
+                kvmapInstance.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance1.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance2.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance3.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance4.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance5.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance6.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance7.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance8.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance9.viewer.imageryLayers.addImageryProvider(googleProvider);
+                // kvmapInstance10.viewer.imageryLayers.addImageryProvider(googleProvider);
+
+
+
+                kvmapInstance.viewer.scene.camera.setView({
+                    destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                    orientation: {
+                        heading: Cesium.Math.toRadians(7.359013943612856),
+                        pitch: Cesium.Math.toRadians(-33.80659561265216),
+                        roll: Cesium.Math.toRadians(0.026247289817529662),
+                    },
+                });
+
+                // kvmapInstance1.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+                // kvmapInstance2.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+                // kvmapInstance3.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+                // kvmapInstance4.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+                // kvmapInstance5.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+                // kvmapInstance6.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+                // kvmapInstance7.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+                // kvmapInstance8.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+                // kvmapInstance9.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+                // kvmapInstance10.viewer.scene.camera.setView({
+                //     destination: Cesium.Cartesian3.fromDegrees(120.70506703076308, 31.095733430908783, 12684.383380138297),
+                //     orientation: {
+                //         heading: Cesium.Math.toRadians(7.359013943612856),
+                //         pitch: Cesium.Math.toRadians(-33.80659561265216),
+                //         roll: Cesium.Math.toRadians(0.026247289817529662),
+                //     },
+                // });
+
+
+
+                
+
+
+                window.updateData = function(){
+                    setInterval(function() {
+                        layer.updateData([
+                            {
+                                longitude: 121.49728 + (Math.random() - 0.5) * 2,
+                                latitude: 31.24332 + (Math.random() - 0.5) * 2,
+                                id: "stc1",
+                                lineId: "stc1"
+                            },
+                            {
+                                longitude: 121.49728 + (Math.random() - 0.5) * 2,
+                                latitude: 31.24332 + (Math.random() - 0.5) * 2,
+                                id: "stc1",
+                                lineId: "stc1"
+                            },
+                            {
+                                longitude: 121.45728 + (Math.random() - 0.5) * 2,
+                                latitude: 31.29332 + (Math.random() - 0.5) * 2,
+                                id: "stc2",
+                                lineId: "stc2"
+                            },
+                            {
+                                longitude: 121.45728 + (Math.random() - 0.5) * 2,
+                                latitude: 31.29332 + (Math.random() - 0.5) * 2,
+                                id: "stc2",
+                                lineId: "stc2"
+                            },
+                        ]);
+                    }, 5000);
+                    // layer.updateData([
+                    //     {
+                    //         longitude: 121.49728,
+                    //         latitude: 31.24332,
+                    //         id: "stc1"
+                    //     },
+                    //     {
+                    //         longitude: 121.45728,
+                    //         latitude: 31.29332,
+                    //         id: "stc3"
+                    //     },
+                    // ]);
+                }
+            };
+        </script>
+    </body>
+</html>

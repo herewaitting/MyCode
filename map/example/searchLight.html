@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvmap.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            const IntervalLineShaderText =
+            // "float stc_pl = fract(czm_frameNumber / 120.0) * 3.14159265 * 2.0;\n" +
+            // "float stc_sd = (abs(v_stcVertex.z) + 150.0) / 200.0 + sin(stc_pl) * 0.2;\n" +
+            // "gl_FragColor *= vec4(stc_sd, stc_sd, stc_sd, 1.0);\n" +
+
+            // "gl_FragColor *= vec4(1.2);\n" +
+            "float stc_a13 = fract(czm_frameNumber / 360.0);\n" +
+            "float stc_h = fract(abs(v_stcVertex.z) / 50.0);\n" +
+            "if(stc_h>0.05)return;\n" +
+            "gl_FragColor.rgb += gl_FragColor.rgb * (1.0 - stc_h);\n";
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvmap) {
+                    return;
+                }
+                const kvmapInstance = new kvmap.KVMap();
+                window.kvmapInstance = kvmapInstance;
+                var stc = kvmapInstance.initEarth(document.getElementById("app"), {
+                    cesiumViewerCfg: {},
+                    initMapOpts: {
+                        beautifyFilter: {
+                            blend: true,
+                            blendColor: "red",
+                            alpha: 0.5,
+                        },
+                        imageryProvider:  [{
+        type: "UrlTemplate",
+        server: "https://10.67.24.188:8081/ditu/suzhou",
+        minimumLevel: 0,
+        maximumLevel: 16,
+        rectangle: {
+            west: "180",
+            south: "90",
+            east: "-180",
+            north: "-90",
+        },
+    }],
+                        initAnimation: {
+                            flyTo: false,
+                            earthRotate: true,
+                        },
+                        angleOfViewCfg: {
+                            heading: 359.5154812090159,
+                            height: 27960.468749340518,
+                            lat: 31.19029052256919,
+                            lon: 120.67433939359924,
+                            pitch: -59.99935855864218,
+                            roll: 359.99712145262174
+                        },
+                        tilesCfg: {
+                            // url:"https://lab.earthsdk.com/model/702aa950d03c11e99f7ddd77cbe22fea/tileset.json",
+                            // url:"https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            height: 0,
+                        },
+                        dubuggerMode: true,
+                        fogCfg: {
+                            ableFog: true,
+                            x: 20,
+                            y: 20,
+                            color: "#ff0000",
+                            strength: 50,
+                        },
+                            dubuggerMode: true,
+                    },
+                })
+                kvmapInstance.setAnimation({
+                            flyTo: false,
+                            earthRotate: false,
+                        },{
+                            heading: 178.29906505242647,
+                            height: 213.39377173156018,
+                            lat: 31.307995730665663,
+                            lon: 120.69116441899729,
+                            pitch: -28.39450526725269,
+                            roll: 0.005747059360856572,
+                        });
+                function updateStyle(){
+                    layer1.updateStyle( {
+                        type: "rectMirror",
+                        style: {
+                            color: options.color,
+                            cellAlpha: options.cellAlpha,
+                            width: options.width,
+                            center: {
+                                lon: options.lon,
+                                lat: options.lat
+                            },
+                            lineCount: options.lineCount,
+                            mirrorDefinition: options.mirrorDefinition
+                        },
+                    });
+                }
+                
+                const szorigin = {
+                    lat: 31.303730417644452,
+                    lon: 120.69178925547706
+                }
+                function updateblStyle() {
+                    layer2.updateStyle( {
+                        type: "searchLight",
+                        style: {
+                            lightNum: blopt.lightNum,
+                            length: blopt.length,
+                            lineWidth: blopt.lineWidth,
+                            slope: blopt.slope,
+                            position: {
+                                lon: blopt.lon,
+                                lat: blopt.lat,
+                                height: blopt.height,
+                            },
+                            color: blopt.color,
+                        },
+                    });
+                }
+
+
+
+
+                function Options(){
+                    this.color = "#ffffff";
+                    this.efinition = 50;
+                    this.width = 2000;
+                    this.lon = 120.69178925547706;
+                    this.lat = 31.303730417644452;
+                    this.lineCount = 10;
+                    this.cellAlpha = 50;
+                    this.mirrorDefinition = 100;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+
+                var blopt = {
+                    lightNum: 6,
+                    length: 100,
+                    lineWidth: 5,
+                    slope: 0.2,
+                    lon: szorigin.lon,
+                    lat: szorigin.lat,
+                    height: 0.5,
+                    color: "rgb(255,0,0,1)",
+                }
+                gui.add(blopt, 'lightNum').min(0).max(100).step(1).onChange(function(value){
+                    blopt.lightNum = value;
+                    updateblStyle();
+                });
+                gui.add(blopt, 'length').min(0).max(100).step(1).onChange(function(value){
+                    blopt.length = value;
+                    updateblStyle();
+                });
+                gui.add(blopt, 'lineWidth').min(0).max(100).step(1).onChange(function(value){
+                    blopt.lineWidth = value;
+                    updateblStyle();
+                });
+                gui.add(blopt, 'slope').min(-2).max(2).step(0.1).onChange(function(value){
+                    blopt.slope = value;
+                    updateblStyle();
+                });
+                gui.add(blopt, 'lon').min(-180).max(180).step(1).onChange(function(value){
+                    blopt.lon = value;
+                    updateblStyle();
+                });
+                gui.add(blopt, 'lat').min(-90).max(90).step(1).onChange(function(value){
+                    blopt.lat = value;
+                    updateblStyle();
+                });
+
+                gui.add(blopt, 'height').min(-180).max(180).step(1).onChange(function(value){
+                    blopt.height = value;
+                    updateblStyle();
+                });
+                gui.addColor(blopt, 'color').onChange(function(value){
+                    blopt.color = value;
+                    updateblStyle();
+                });
+
+
+                gui.addColor(options, 'color').onChange(function(value){
+                    options.color = value;
+                    updateStyle();
+                });
+                gui.add(options, 'lineCount').min(0).max(100).step(1).onChange(function(value){
+                    options.lineCount = value;
+                    updateStyle();
+                });
+                gui.add(options, 'cellAlpha').min(0).max(100).step(1).onChange(function(value){
+                    options.cellAlpha = value;
+                    updateStyle();
+                });
+                gui.add(options, 'mirrorDefinition').min(0).max(100).step(1).onChange(function(value){
+                    options.mirrorDefinition = value;
+                    updateStyle();
+                });
+                gui.add(options, 'width').min(0).max(20000).step(1).onChange(function(value){
+                    options.width = value;
+                    updateStyle();
+                });
+                gui.add(options, 'lon').min(-180).max(180).step(1).onChange(function(value){
+                    options.lon = value;
+                    updateStyle();
+                });
+                gui.add(options, 'lat').min(-90).max(90).step(1).onChange(function(value){
+                    options.lat = value;
+                    updateStyle();
+                });
+                kvmapInstance.setSceneCenter({
+                    lon: szorigin.lon,
+                    lat: szorigin.lat,
+                }, 200);
+                // kvmapInstance.setLimitEvent();
+                // kvmapInstance.showGlobe(false);
+                // kvmapInstance.showSun(false);
+                stc.then(function() {
+                    let layer = kvmapInstance.addLayer("Point", "layer");
+                    layer.addEntityLayer( {
+                        type: "model",
+                        data: [
+                            {
+                                lon: szorigin.lon,
+                                lat: szorigin.lat,
+                            },
+                        ],
+                        style: {
+                            // modelUrl: "../static_stc/ntzy/ntzy.gltf", //模型
+                            modelUrl: "../static_stc/gltf/blender/3haolouzhulou.gltf", //模型
+                            // modelUrl: "../static_stc/gltf/ntzynew/nantongzhongyuan.gltf", //模型
+
+                        },
+                    });
+
+                    window.layer = layer;
+
+                    // let layerppp = kvmapInstance.addLayer("Point", "layerppp");
+                    // layerppp.addEntityLayer( {
+                    //         type: "randomFloat",
+                    //         // data: roadData.points,
+                    //         data:[],
+                    //         style: {
+                    //             radius: 3000,
+                    //             center: {
+                    //                 lat: szorigin.lat,
+                    //                 lon: szorigin.lon,
+                    //                 height: 0
+                    //             },
+                    //             potNum : 10000, 
+                    //             limitHeight : 200,
+                    //             color : "#ff00ff"
+                    //         },
+                    //     });
+
+                    let layer1 = kvmapInstance.addLayer("Polygon", "layer1");
+                    layer1.addEntityLayer( {
+                        type: "rectMirror",
+                        data: [
+                            {
+                                lon: szorigin.lon,
+                                lat: szorigin.lat,
+                            },
+                        ],
+                        style: {
+                            width: 2000,
+                            center: {
+                                lon: szorigin.lon,
+                                lat: szorigin.lat,
+                            },
+                            lineCount : 10,
+                            cellAlpha : 50,
+                        },
+                    });
+                    window.layer1 = layer1;
+
+                    let layer2 = kvmapInstance.addLayer("Point", "layer2");
+                    layer2.addEntityLayer( {
+                        type: "searchLight",
+                        data: [
+                        ],
+                        style: {
+                            lineWidth: 5,
+                            length: 1000,
+                            position: {
+                                lon: szorigin.lon,
+                                lat: szorigin.lat,
+                            },
+                        },
+                    });
+                    window.layer2 = layer2;
+
+                const viewer = layer2.viewer;
+                window.outline = viewer.scene.primitives.add(Cesium.createOsmBuildings());
+
+                // viewer.scene.camera.flyTo({
+                // destination: Cesium.Cartesian3.fromDegrees(-74.019, 40.6912, 750),
+                // orientation: {
+                //     heading: Cesium.Math.toRadians(20),
+                //     pitch: Cesium.Math.toRadians(-20),
+                // },
+                // }); 
+                    
+                });
+            };
+        </script>
+    </body>
+</html>

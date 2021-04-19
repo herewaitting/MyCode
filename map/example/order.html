@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="CesiumUnminified/Widgets/Widgets.css" />
+        <script src="CesiumUnminified/Cesium.js"></script>
+        <script src="kvmap/dist/kvmap.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvmap) {
+                    return;
+                }
+                const kvmapInstance = new kvmap.KVMap();
+                window.kvmapInstance = kvmapInstance;
+                var stc = kvmapInstance.initEarth(document.getElementById("app"), {
+                    cesiumViewerCfg: {},
+                    initMapOpts: {
+                        beautifyFilter: {
+                            blend: true,
+                            blendColor: "red",
+                            alpha: 0.5,
+                        },
+                        imageryProvider: "",
+                        initAnimation: {
+                            flyTo: false,
+                            earthRotate: false,
+                        },
+                        angleOfViewCfg: {
+                            lon: 121.60976973871132,
+                            lat: 31.109214738816334,
+                            height: 22160.604766729462,
+                            heading: 359.998126822114,
+                            pitch: -59.99968834636347,
+                        },
+                        tilesCfg: {
+                            // url:"https://lab.earthsdk.com/model/702aa950d03c11e99f7ddd77cbe22fea/tileset.json",
+                            url:"https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            height: 0,
+                        },
+                            dubuggerMode: true,
+                    },
+                });
+                stc.then(function() {
+                    let layer1 = kvmapInstance.addLayer("Point", "layer1");
+
+                    // layer1.style = {
+                    //         color: "red",
+                    //         duration: 1, //动画时长
+                    //         count: 2, //扩散圈数
+                    //         gradient: 1, //渐变系数
+                    //         radius: 2000,
+                    //     }
+                    // layer1.data = [
+                    //         {
+                    //             lon: 121.52050254875654,
+                    //             lat: 31.224927649720218,
+                    //         },
+                    //     ]
+                    layer1.addEntityLayer( {
+                        type: "spread",
+                        data: [
+                                {
+                                    lon: 121.4743152757169,
+                                    lat: 31.232720898455653,
+                                },
+                                {
+                                    lon: 121.52050254875654,
+                                    lat: 31.224927649720218,
+                                },
+                            ],
+                        style: {
+                            color: "red",
+                            speed: 5, //动画速度
+                            count: 3, //扩散圈数
+                            gradient: 3, //渐变系数
+                            radius: 200,
+                        },
+                    });
+                    
+
+                    window.layer1 = layer1;
+
+                    stcLayer1 = kvmapInstance.addLayer("Line", "stcLayer1");
+                    stcLayer1.addEntityLayer({
+                        type: "colorLine",
+                        data: [[
+                        {
+                                    lon: 121.4743152757169,
+                                    lat: 31.232720898455653,
+                                },
+                                {
+                                    lon: 121.52050254875654,
+                                    lat: 31.224927649720218,
+                                },
+                        ]],
+                        style: {
+                            lineWidth: 5,
+                            alpha: 0.5,
+                            speed: 1, // 流动速度
+                            bloom: true, // 是否泛光
+                            baseColor: 'red', // 线基础颜色,
+                            floodColor: 'yellow', // 流动颜色
+                        },
+                    });
+                    let layer2 = kvmapInstance.addLayer("Line", "layer2");
+                    layer2.addEntityLayer( {
+                        type: "parabola",
+                        data: [
+                            {
+                                originPoint: {
+                                    lon: 121.50332892795983,
+                                    lat: 31.23656105008511,
+                                }, //源点;
+                                targetPoint: [
+                                    {
+                                        lon: 121.4743152757169,
+                                        lat: 31.232720898455653,
+                                    },
+                                    {
+                                        lon: 121.52050254875654,
+                                        lat: 31.224927649720218,
+                                    },
+                                ], //目标点集合;
+                            },
+                        ],
+                        style: {
+                            baseColor: "red",
+                            height: 1000,
+                            num: 30, //抛物线中间点填充个数
+                            floodColor: "yellow", //流动颜色
+                            speed: 3, //流动速度
+                            repeat: {
+                                //流动点重复
+                                x: 2,
+                                y: 1,
+                            },
+                            lineWidth: 5,
+                        },
+                    });
+                    window.layer2 = layer2;
+
+                    let layer3 = kvmapInstance.addLayer("Point", "layer3");
+                    layer3.addEntityLayer({
+                        type: "wish",
+                        data: [
+                            {
+                                lon: 121.52050254875654,
+                                lat: 31.224927649720218,
+                            },
+                        ],
+                        style: {
+                            color: "yellow",
+                            speed: 3,
+                            bloom:true
+                        },
+                    });
+
+                    window.layer3 = layer3;
+
+                    // let layer4 = kvmapInstance.addLayer("Point", "layer4");
+                    // layer4.addEntityLayer( {
+                    //     type: "magic",
+                    //     data: [
+                    //         {
+                    //             lon: 121.49523043433399,
+                    //             lat: 31.241949905908797,
+                    //         },
+                    //     ],
+                    //     style: {
+                    //         radius: 2000,
+                    //         speed:1
+                    //     },
+                    // });
+
+                    // window.layer4 = layer4;
+
+                    let layer5 = kvmapInstance.addLayer("Point", "layer5");
+                    layer5.addEntityLayer( {
+                        type: "billboard",
+                        data: [
+                            {
+                                lon: 121.72050254875654,
+                                lat: 31.224927649720218,
+                            },
+                        ],
+                        style: {
+                            id: "stcbb",
+                            imgUrl: "static/mark/star.png", //图片
+                            scale: 1, //缩放
+                        },
+                    });
+                    window.layer5 = layer5;
+
+                    let layer6 = kvmapInstance.addLayer("Point", "layer6");
+                    layer6.addEntityLayer( {
+                        type: "model",
+                        data: [
+                            {
+                                lon: 121.72050254875654,
+                                lat: 31.224927649720218,
+                            },
+                        ],
+                        style: {
+                            id: "stcbb",
+                            modelUrl: "static/gltf/Cesium_Man.glb", //模型
+                            scale: 100, //缩放
+                        },
+                    });
+
+                    window.layer6 = layer6;
+
+                    let layer7 = kvmapInstance.addLayer("Point", "layer7");
+                    layer7.addEntityLayer( {
+                        type: "colorPoint",
+                        data: [
+                            {
+                                lon: 121.4943152757169,
+                                lat: 31.228927649720218,
+                            },
+                        ],
+                        style: {
+                            color: "red", //模型
+                            pixelSize: 15, //缩放
+                        },
+                    });
+                    window.layer7 = layer7;
+                });
+
+                var layer8 = kvmapInstance.addLayer("Polygon", "layer8");
+                layer8.addEntityLayer( {
+                    type: "water",
+                    data: [
+                        {
+                            lon: 130,
+                            lat: 30,
+                            height: 0,
+                        },
+                        {
+                            lon: 150,
+                            lat: 30,
+                            height: 0,
+                        },
+                        {
+                            lon: 150,
+                            lat: 10,
+                            height: 0,
+                        },
+                        {
+                            lon: 130,
+                            lat: 10,
+                            height: 0,
+                        },
+                        {
+                            lon: 115,
+                            lat: 20,
+                            height: 0,
+                        },
+                    ],
+                    style: {
+                        alpha: 0.5,
+                        normalMap: "static/img/waterNormals.jpg",
+                        baseWaterColor: new Cesium.Color(0.2, 0.3, 1.0),
+                        animationSpeed: 0.01,
+                        amplitude: 10,
+                        frequency: 100,
+                    },
+                });
+                window.layer8 = layer8;
+
+
+                var layer9 = kvmapInstance.addLayer("Polygon", "layer9");
+                layer9.addEntityLayer( {
+                    type: "cube",
+                    data: [[
+                        {
+                            lon: 130,
+                            lat: 30,
+                            height: 0,
+                        },
+                        {
+                            lon: 150,
+                            lat: 30,
+                            height: 0,
+                        },
+                        {
+                            lon: 150,
+                            lat: 10,
+                            height: 0,
+                        },
+                        {
+                            lon: 130,
+                            lat: 10,
+                            height: 0,
+                        },
+                        {
+                            lon: 115,
+                            lat: 20,
+                            height: 0,
+                        },
+                    ]],
+                    style: {
+                        color: "red",
+                        height: 0,
+                        extrudedHeight: 500000,
+                        alpha: 0.5,
+                    },
+                });
+
+                window.layer9 = layer9;
+
+
+                // kvmapInstance.addLayer("bmlayer", {
+                //     url:
+                //         "https://lab.earthsdk.com/model/702aa950d03c11e99f7ddd77cbe22fea/tileset.json",
+                //     style: "interval_lines",
+                //     styleBM: true,
+                //     baseColor: new Cesium.Color(0.06, 0.25, 0.8),
+                //     postBloom: true,
+                //     layerId:'stc3'
+                // });
+
+                // kvmapInstance.addLayer("lineslayer", {
+                //     layerId:'normalLine',
+                //     data:[[
+                //         {
+                //             lon:121.50238886959176,
+                //             lat:31.236484792939266,
+                //             height:100
+                //         },
+                //         {
+                //             lon:121.50338886959176,
+                //             lat:31.237484792939266,
+                //             height:200
+                //         }
+                //     ]],
+                //     color:{
+                //         red:1.0,
+                //         green:1.0,
+                //         blue:0,
+                //         alpha:1.0
+                //     },
+                //     lineWidth:5
+                // });
+
+                kvmapInstance.viewer.scene.debugShowFramesPerSecond = true;
+
+                window.rotateSelf = function (){
+                    let point = {
+                        lon:121.62006810145434,
+                        lat:31.22530923309208,
+                        height:288.3223665709747
+                    }
+                    kvmapInstance.rotatePoint({
+                        type:'self',
+                        param:{
+                            point:point
+                        }
+                    });
+                }
+                window.rotateElse = function (){
+                    let point = {
+                        lon:121.62006810145434,
+                        lat:31.22530923309208,
+                        height:288.3223665709747
+                    }
+                    kvmapInstance.rotatePoint({
+                        type:'else',
+                        param:{
+                            point:point,
+                            height:50,
+                            distance:200,
+                            speed:2
+                        }
+                    });
+                }
+
+
+
+
+                
+                const wallData = [[
+                    {
+                        lon:121.50843118073439,
+                        lat:31.236240694308645,
+                        height:0
+                    }
+
+                    ,
+                    {
+                        lon:121.4949638274033,
+                        lat:31.23268692936606,
+                        height:0
+                    }
+                    ,
+                    {
+                        lon:121.49075630220453,
+                        lat:31.237137939807795,
+                        height:0
+                    },
+                    {
+                        lon:121.48908169024442,
+                        lat:31.24119430424044,
+                        height:0
+                    },
+                    {
+                        lon:121.49380319963136,
+                        lat:31.245482565203346,
+                        height:0
+                    },
+                    {
+                        lon:121.50087726002816,
+                        lat:31.24796874409237,
+                        height:0
+                    },
+                    {
+                        lon:121.50843118073439,
+                        lat:31.236240694308645,
+                        height:0
+                    }
+                ]]
+                
+                window.layer10 = kvmapInstance.addLayer('Polygon','layer10');
+                layer10.addEntityLayer({
+                    type:'imageWall',
+                    data:wallData,
+                    style:{
+                        height:100,
+                        imgUrl:'static/img/airfield.png',
+                        repeat: 20,
+                        baseColor: 'yellow'
+                    }
+                });
+
+                window.layer11 = kvmapInstance.addLayer('Polygon','layer11');
+                layer11.addEntityLayer({
+                    type:'single',
+                    data:wallData,
+                    style:{
+                        color: 'yellow'
+                    }
+                });
+
+
+                let pathMoveData = [
+                    {
+                        lon: 121.72050254875654,
+                        lat: 31.224927649720218,
+                        height:0,
+                        time:1583730816354
+                    },
+                    {
+                        lon: 121.73941168702943,
+                        lat: 31.214699961478917,
+                        time:1583730886354,
+                        height:0,
+                    }
+                ];
+
+                window.pathMove = kvmapInstance.addLayer('Line','pathMove');
+                pathMove.addEntityLayer({
+                    type:'pathAnimation',
+                    data:pathMoveData,
+                    style:{
+                        model:"static/gltf/CesiumMilkTruck.glb",
+                        scale: 1
+                    }
+                });
+            };
+        </script>
+    </body>
+</html>

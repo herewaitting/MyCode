@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+
+                    
+
+
+                    
+
+                    function updateStyle(){
+                        layer.updateStyle({
+                                alpha: options.alpha,
+                                radius: options.radius,
+                                height: options.height,
+                                spaceRatio: options.spaceRatio,
+                                speed: options.speed,
+                                brightness: options.brightness
+                            });
+                    }
+
+                    function Options(){
+                        this.spaceRatio = 0.1;
+                        this.alpha = 100;
+                        this.height = 300;
+                        this.radius = 150;
+                        this.speed = 1;
+                        this.brightness = 0;
+                    }
+                    var options = new Options();
+                    var gui = new dat.GUI();
+                    gui.add(options,"speed").min(0.1).max(10).step(0.2).onChange(function(value){
+                        options.speed = value;
+                        updateStyle();
+                    });
+                    gui.add(options,"radius").min(100).max(1000).step(10).onChange(function(value){
+                        options.radius = value;
+                        updateStyle();
+                    });
+                    gui.add(options,"alpha").min(0).max(1).step(0.01).onChange(function(value){
+                        options.alpha = value;
+                        updateStyle();
+                    });
+                    gui.add(options,"spaceRatio").min(0.1).max(0.3).step(0.02).onChange(function(value){
+                        options.spaceRatio = value;
+                        updateStyle();
+                    });
+                    gui.add(options,"height").min(0).max(500).step(1).onChange(function(value){
+                        options.height = value;
+                        updateStyle();
+                    });
+                    gui.add(options,"brightness").min(0).max(500).step(1).onChange(function(value){
+                        options.brightness = value;
+                        updateStyle();
+                    });
+                    let layer =  kvmapInstance.layerManager.addLayer("stc", "Tornado", {
+                        style: {
+                            radius: 150,
+                            height: 300,
+                            alpha: 0.5,
+                            speed: 1,
+                            spaceRatio: 0.25,
+                            brightness: 2.5
+                        }
+                    });
+                    layer.setData([
+                        {
+                            longitude: 121.49520943105013,
+                            latitude: 31.2419239558996,
+                            height: 500
+                        }
+                    ]);
+                    window.layer = layer;
+
+                    setTimeout(function(){
+                        layer.located();
+                    },2000);
+            };
+        </script>
+    </body>
+</html>

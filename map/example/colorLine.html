@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+        <script src="./data/lines.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+
+                                    window.onload = () => {
+                                        if (!window.kvscene) {
+                                            return;
+                                        }
+                                        const kvmapInstance = new kvscene.KVScene3D({
+                                            el: "app"
+                                        });
+                                        window.kvmapInstance = kvmapInstance;
+                                        kvmapInstance.viewer.scene.debugShowFramesPerSecond = true;
+
+                                        window.viewer = kvmapInstance.viewer;
+
+                                        var mouseClickHandler = new Cesium.ScreenSpaceEventHandler(
+                                            viewer.scene.canvas,
+                                        );
+                                        mouseClickHandler.setInputAction((
+                                            movement
+                                        ) => {
+
+                                            const pickedFeature = viewer.scene.pick(movement.position);
+                                            console.log(pickedFeature);
+                                        },
+                                        Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+                                        function blednOpts() {
+                                            this.blend = true;
+                                            this.blendColor = "#010431";
+                                            this.alpha = 70;
+                                        }
+                                        // var blendOpts = new blednOpts();
+                                        // var blendGui = new dat.GUI();
+                                        // blendGui.add(blendOpts, 'blend').onChange(function(value){
+                                        //     options.blend = value;
+                                        //     kvmapInstance.setBlend({
+                                        //         blend: blendOpts.blend,
+                                        //         blendColor: blendOpts.blendColor,
+                                        //         alpha: blendOpts.alpha,
+                                        //     });
+                                        // });
+
+                                        // blendGui.addColor(blendOpts, 'blendColor').onChange(function(value){
+                                        //     options.blendColor = value;
+                                        //     kvmapInstance.setBlend({
+                                        //         blend: blendOpts.blend,
+                                        //         blendColor: blendOpts.blendColor,
+                                        //         alpha: blendOpts.alpha,
+                                        //     });
+                                        // });
+
+                                        // blendGui.add(blendOpts, 'alpha').min(1).max(100).step(0.1).onChange(function(value){
+                                        //     options.alpha = value;
+                                        //     kvmapInstance.setBlend({
+                                        //         blend: blendOpts.blend,
+                                        //         blendColor: blendOpts.blendColor,
+                                        //         alpha: blendOpts.alpha,
+                                        //     });
+                                        // });
+
+                                        function Options(){
+                                            this.lineWidth = 6;
+                                            this.alpha = 0.5;
+                                            this.speed = 2;
+                                            this.bloom = false;
+                                            this.baseColor = '#7514ff';
+                                            this.floodColor = '#defc00';
+                                            this.brightness = 2;
+                                            this.groundLine = false;
+                                        }
+                                        // var options = new Options();
+                                        // var gui = new dat.GUI();
+                                        // gui.add(options, 'lineWidth').min(1).max(100).step(1).onFinishChange(function(value){
+                                        //     options.lineWidth = value;
+                                        //     updateStyle();
+                                        // });
+                                        // gui.add(options, 'groundLine').onFinishChange(function(value){
+                                        //     options.groundLine = value;
+                                        //     updateStyle();
+                                        // });
+                                        // gui.add(options, 'speed').min(1).max(10).step(1).onFinishChange(function(value){
+                                        //     options.speed = value;
+                                        //     updateStyle();
+                                        // });
+                                        // gui.add(options, 'bloom').onFinishChange(function(value){
+                                        //     options.bloom = value;
+                                        //     updateStyle();
+                                        // });
+
+                                        // gui.addColor(options, 'baseColor').onFinishChange(function(value){
+                                        //     options.baseColor = value;
+                                        //     updateStyle();
+                                        // });
+                                        // gui.addColor(options, 'floodColor').onFinishChange(function(value){
+                                        //     options.floodColor = value;
+                                        //     updateStyle();
+                                        // });
+                                        // gui.add(options,"brightness").min(0).max(500).step(1).onChange(function(value){
+                                        //     options.brightness = value;
+                                        //     updateStyle();
+                                        // });
+
+                                        function updateStyle(){
+                                            layer2.updateStyle({
+                                                lineWidth: options.lineWidth,
+                                                alpha: options.alpha,
+                                                speed: options.speed, // 流动速度
+                                                bloom: options.bloom, // 是否泛光
+                                                baseColor: options.baseColor, // 线基础颜色,
+                                                floodColor: options.floodColor, // 流动颜色
+                                                mergeDraw: false,
+                                                brightness: options.brightness,
+                                                groundLine: options.groundLine,
+                                                condition:[
+                                                    {
+                                                        condition: "{{other}} == 'stc'",
+                                                        style: {
+                                                            baseColor: "red"
+                                                        }
+                                                    }
+                                                ]
+                                            });
+                                        }
+
+                                        const stcData = [
+                                                {
+                                                    id: "stc",
+                                                    lon:121.50843118073439,
+                                                    lat:31.236240694308645,
+                                                    height:0,
+                                                    other: "stc"
+                                                }
+                                                ,
+                                                {
+                                                    id: "stc",
+                                                    lon:121.4949638274033,
+                                                    lat:31.23268692936606,
+                                                    height:0,
+                                                    other: "stc"
+                                                },
+
+                                                {
+                                                    id: "stc1",
+                                                    lon:121.55843118073439,
+                                                    lat:31.226240694308645,
+                                                    height:0
+                                                }
+                                                ,
+                                                {
+                                                    id: "stc1",
+                                                    lon:121.4549638274033,
+                                                    lat:31.25268692936606,
+                                                    height:0
+                                                }
+                                            ]
+
+                                        Cesium.Camera.DEFAULT_VIEW_FACTOR = 10;
+                                        layer2 = kvmapInstance.layerManager.addLayer("stc", "ColorLine", {
+                                            baseCfg: {
+                                                mergeDraw: true,
+                                                visible: true,
+                                                brightness: 1,
+                                                // minVisibleLevel: 10,
+                                                // maxVisibleLevel: 15,
+                                            },
+                                            style: {
+                                                lineWidth: 3,
+                                                alpha: 0.5,
+                                                speed: 2, // 流动速度
+                                                bloom: false, // 是否泛光
+                                                baseColor: '#7514ff', // 线基础颜色,
+                                                floodColor: '#defc00', // 流动颜色
+                                                brightness:1,
+                                                groundLine: true,
+                                            }
+                                        });
+                                        // layer2.setData("http://10.67.0.56:9091/static/geojson/szRoad.geojson");
+                                        layer2.setData("http://10.67.0.56:9091/static_stc/json/test.json");
+
+
+
+
+
+
+                                        window.layer = kvmapInstance.layerManager.addLayer("Polygon", "InnerGlowPolygon", {
+                                            baseCfg: {
+                                                visible: true,
+                                            },
+                                            style: {
+                                                brightness: 1,
+                                                alpha: 1.0,
+                                                imgUrl: "../static_stc/img/globe.jpg",
+                                                color: "#ffff00",
+                                                stickGround: false,
+                                                brightStrength: 8,
+                                            }
+                                        });
+                                        // layer.setData("http://10.67.0.56:9091/static_stc/json/test1.json");
+                                        layer.setData("http://10.67.0.56:9091/static_stc/json/苏州市geo.json");
+
+
+
+
+
+
+
+                                        // layer2.setData(stcData);
+                                        window.layer2 = layer2;
+                                        setTimeout(function(){
+                                            // layer2.located();
+                                        },2000);
+
+
+                                    window.dantihua = new kvscene.Dantihua(kvmapInstance.viewer);
+                                    dantihua.addPolygon();
+
+
+
+                                    var tilebm = kvmapInstance.layerManager.addLayer("Building", "WhiteTiles", {
+                                            style: {
+                                                    // url: "https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                                                    url: "https://10.68.8.20/kmap-server/sanyuansancun/tileset.json",
+                                                    // url: "http://106.12.93.244/data/3dtiles/sztest/tileset.json",
+                                                    // url:"../static/tiles/tileset.json",
+                                                    style : "interval_lines",
+                                                    maximumScreenSpaceError : 60,
+                                                    baseColor : "#3a777f",
+                                                    appearMove : true,
+                                                    height: 0,
+                                                    bloom: false,
+                                                    useColor: false,
+                                                    ableCustomLight: true,
+                                                }
+                                        });
+
+                                        kvmapInstance.on("sceneClick", function(fea) {
+                                            console.log(fea);
+                                        });
+
+                                    };
+
+
+
+                                    // 三元
+
+                                    var sanyuan = [
+                                        {
+                                            "1": {
+                                                positions: [
+                                                    {"longitude":120.56963896478256,"latitude":31.30494925642953,"height":10.88},
+                                                    {"longitude":120.56957766022511,"latitude":31.30512376381687,"height":14.29},
+                                                    {"longitude":120.56981167306982,"latitude":31.305183032099503,"height":25.29},
+                                                    {"longitude":120.56985740236615,"latitude":31.30499784647706,"height":11.26}
+                                                ]
+                                            },
+                                            "2": {
+                                                positions: [
+                                                    {"longitude":120.56986524350141,"latitude":31.305017890639498,"height":10.98},
+                                                    {"longitude":120.56983314612435,"latitude":31.305173583899524,"height":24.24},
+                                                    {"longitude":120.5700442365064,"latitude":31.305218616116274,"height":28.91},
+                                                    {"longitude":120.5701112177901,"latitude":31.305047202917883,"height":10.84}
+                                                ]
+                                            },
+                                            "3": {
+                                                positions: [
+                                                    {"longitude":120.56966298217418,"latitude":31.304715508084378,"height":17.38},
+                                                    {"longitude":120.56962955870362,"latitude":31.304872858113402,"height":11.26},
+                                                    {"longitude":120.57011193101017,"latitude":31.304986960903616,"height":17.38},
+                                                    {"longitude":120.57016165139733,"latitude":31.304815723105385,"height":13.73}
+                                                ]
+                                            },
+                                            "4": {
+                                                positions: [
+                                                    {"longitude":120.56974636776901,"latitude":31.3044494742472,"height":14.25},
+                                                    {"longitude":120.56971685191124,"latitude":31.304579072816693,"height":12.76},
+                                                    {"longitude":120.57017232640847,"latitude":31.304686327977144,"height":23.75},
+                                                    {"longitude":120.57021254960051,"latitude":31.304560209791436,"height":18.78}
+                                                ]
+                                            },
+                                            "5": {
+                                                positions: [
+                                                    {"longitude":120.56984038775991,"latitude":31.304203118610317,"height":11.05},
+                                                    {"longitude":120.56980247660522,"latitude":31.30434111624456,"height":10.94},
+                                                    {"longitude":120.57025269816148,"latitude":31.30443250790401,"height":22.09},
+                                                    {"longitude":120.57029920458908,"latitude":31.304310239363296,"height":14.75}
+                                                ]
+                                            },
+                                            "6": {
+                                                positions: [
+                                                    {"longitude":120.57012305078526,"latitude":31.305064659557225,"height":10.97},
+                                                    {"longitude":120.57008271846135,"latitude":31.30522656655717,"height":26.54},
+                                                    {"longitude":120.57028866035114,"latitude":31.305271727860433,"height":25.78},
+                                                    {"longitude":120.57036183470203,"latitude":31.305099347159448,"height":10.78}
+                                                ]
+                                            },
+                                            "7": {
+                                                positions: [
+                                                    {"longitude":120.57037047947475,"latitude":31.3051120871439,"height":10.81},
+                                                    {"longitude":120.57032040241637,"latitude":31.305282981422437,"height":24.81},
+                                                    {"longitude":120.57053535412918,"latitude":31.30532771558913,"height":22.59},
+                                                    {"longitude":120.5705789355952,"latitude":31.30516250064407,"height":20.74}
+                                                ]
+                                            },
+                                            "8": {
+                                                positions: [
+                                                    {"longitude":120.57020263312937,"latitude":31.30484699885213,"height":13.76},
+                                                    {"longitude":120.57015544828184,"latitude":31.304982476077313,"height":11.52},
+                                                    {"longitude":120.57062149489744,"latitude":31.305097997868632,"height":12.17},
+                                                    {"longitude":120.5706771972026,"latitude":31.304930720440357,"height":11.07}
+                                                ]
+                                            },
+                                            "9": {
+                                                positions: [
+                                                    {"longitude":120.57026974682223,"latitude":31.304604167972528,"height":22.78},
+                                                    {"longitude":120.57024234609358,"latitude":31.30471104042522,"height":23.48},
+                                                    {"longitude":120.57064385490315,"latitude":31.304809096869743,"height":10.95},
+                                                    {"longitude":120.57067955270655,"latitude":31.304691973779388,"height":10.95}
+                                                ]
+                                            },
+                                            "10": {
+                                                positions: [
+                                                    {"longitude":120.5703081961422,"latitude":31.304461333278397,"height":25.56},
+                                                    {"longitude":120.57028705752059,"latitude":31.3045621099012,"height":24.64},
+                                                    {"longitude":120.57068906325796,"latitude":31.30465618289639,"height":10.95},
+                                                    {"longitude":120.57072485238615,"latitude":31.304546568862907,"height":10.82}
+                                                ]
+                                            },
+                                            "11": {
+                                                positions: [
+                                                    {"longitude":120.57036924285198,"latitude":31.304307729211033,"height":11.33},
+                                                    {"longitude":120.57032273529076,"latitude":31.3044357236097,"height":20.69},
+                                                    {"longitude":120.57071822248318,"latitude":31.30452843598095,"height":10.81},
+                                                    {"longitude":120.57077161789938,"latitude":31.304398277156842,"height":12.56}
+                                                ]
+                                            },
+
+
+                                            "12": {
+                                                positions: [
+                                                    {"longitude":120.56934305037367,"latitude":31.305030412510064,"height":15.56},
+                                                    {"longitude":120.56929740474368,"latitude":31.30521848329129,"height":15.03},
+                                                    {"longitude":120.56952812784394,"latitude":31.305267845830542,"height":21.69},
+                                                    {"longitude":120.56958078147463,"latitude":31.305086152437298,"height":11.07}
+                                                ]
+                                            },
+                                            "13": {
+                                                positions: [
+                                                    {"longitude":120.5692246573891,"latitude":31.305303088959022,"height":11.35},
+                                                    {"longitude":120.56918218192865,"latitude":31.305482966156966,"height":18.77},
+                                                    {"longitude":120.56937860821972,"latitude":31.305529570881976,"height":24.21},
+                                                    {"longitude":120.56943827384613,"latitude":31.305363229983076,"height":24.63}
+                                                ]
+                                            },
+                                            "14": {
+                                                positions: [
+                                                    {"longitude":120.56908350058843,"latitude":31.305591585000435,"height":15.37},
+                                                    {"longitude":120.56905371926904,"latitude":31.305750669921224,"height":21.25},
+                                                    {"longitude":120.56925422987577,"latitude":31.305795194854188,"height":23.51},
+                                                    {"longitude":120.56932612791189,"latitude":31.305642821124355,"height":22.13}
+                                                ]
+                                            }
+                                        }
+                                    ];
+
+
+
+
+
+                                    // 隐藏材质
+                                    const hideMaterial = Cesium.Color.RED.withAlpha(0.001);
+
+
+
+
+                                    // 白洋湾视角
+                        //             heading: 57.088590650346724
+                        // height: 3843.295316857527
+                        // lat: 31.331520669757506
+                        // lon: 120.51622063712192
+                        // pitch: -44.03393182612929
+                        // roll: 0.19959154178308758
+                        var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+                        handler.setInputAction(function (movement) {
+                          var feature = scene.pick(movement.endPosition);
+                        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        </script>
+    </body>
+</html>

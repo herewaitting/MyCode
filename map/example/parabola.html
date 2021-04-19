@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app",
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+                function updateStyle(){
+                    layer.updateStyle( {
+                        baseColor: options.baseColor,
+                        curvature: options.height,
+                        num: options.num, //抛物线中间点填充个数
+                        floodColor: options.floodColor, //流动颜色
+                        speed: options.speed, //流动速度
+                        repeat: options.repeat,
+                        lineWidth: options.lineWidth,
+                        mergeDraw: true,
+                        condition:[
+                            {
+                                condition: "{{other}} == 'stc'",
+                                style: {
+                                    baseColor: "blue"
+                                }
+                            }
+                        ]
+                    });
+                }
+
+                function Options(){
+                    this.baseColor = "#ffffff";
+                    this.height = 5;
+                    this.num = 30; //抛物线中间点填充个数
+                    this.floodColor = "#ffffff"; //流动颜色
+                    this.speed = 3; //流动速度
+                    this.repeat = 2;
+                    this.lineWidth = 5;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options,"baseColor").onFinishChange(function(val){
+                    options.baseColor = val;
+                    updateStyle();
+                });
+                gui.addColor(options,"floodColor").onFinishChange(function(val){
+                    options.floodColor = val;
+                    updateStyle();
+                });
+                gui.add(options, 'height').min(0).max(10).step(0.1).onChange(function(value){
+                    options.height = value;
+                    updateStyle();
+                });
+                gui.add(options, 'num').min(5).max(50).step(2).onChange(function(value){
+                    options.num = value;
+                    updateStyle();
+                });
+                gui.add(options, 'speed').min(1).max(10).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+                gui.add(options, 'lineWidth').min(1).max(10).step(1).onChange(function(value){
+                    options.lineWidth = value;
+                    updateStyle();
+                });
+                gui.add(options, 'repeat').min(1).max(10).step(1).onChange(function(value){
+                    options.repeat = value;
+                    updateStyle();
+                });
+                let layer = kvmapInstance.layerManager.addLayer("stc", "Parabola", {
+                    baseCfg: {
+                        mergeDraw: true,
+                    },
+                    style: {
+                        baseColor: "red",
+                        curvature: 5,
+                        num: 30, //抛物线中间点填充个数
+                        floodColor: "yellow", //流动颜色
+                        speed: 3, //流动速度
+                        repeat: 2,
+                        lineWidth: 5,
+                        mergeDraw: false,
+                        brightness: 2,
+                        condition:[
+                            {
+                                condition: "{{other}} == 'stc'",
+                                style: {
+                                    baseColor: "black"
+                                }
+                            }
+                        ]
+                    }
+                });
+
+                const stcData = [
+                        {
+                            id: "stc",
+                            lon:121.50843118073439,
+                            lat:31.236240694308645,
+                            height:0,
+                            other: "stc"
+                        }
+                        ,
+                        {
+                            id: "stc",
+                            lon:121.4949638274033,
+                            lat:31.23268692936606,
+                            height:0,
+                            other: "stc"
+                        },
+
+                        {
+                            id: "stc1",
+                            lon:121.55843118073439,
+                            lat:31.226240694308645,
+                            height:0
+                        }
+                        ,
+                        {
+                            id: "stc1",
+                            lon:121.4549638274033,
+                            lat:31.25268692936606,
+                            height:0
+                        }
+                    ]
+                layer.setData("http://10.67.0.56:9091/static/geojson/szRoad.geojson");
+                // layer.setData(stcData);
+                window.layer = layer;
+
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+
+
+                window.update = function() {
+                    layer.updateData([
+                        {
+                            id: "stc",
+                            lon:121.60843118073439,
+                            lat:31.236240694308645,
+                            height:0,
+                        }
+                        ,
+                        {
+                            id: "stc",
+                            lon:121.6949638274033,
+                            lat:31.23268692936606,
+                            height:0,
+                        },
+
+                        {
+                            id: "stc3",
+                            lon:120.15843118073439,
+                            lat:31.226240694308645,
+                            height:0
+                        }
+                        ,
+                        {
+                            id: "stc3",
+                            lon:121.1549638274033,
+                            lat:31.25268692936606,
+                            height:0
+                        }
+                    ]);
+                }
+            };
+        </script>
+    </body>
+</html>

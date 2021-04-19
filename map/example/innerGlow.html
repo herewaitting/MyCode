@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+                width:5000px;
+                height: 1800px;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+                window.viewer = kvmapInstance.viewer;
+                Cesium.ExpandBySTC.bloomSizeScale = 2;
+                var layer = kvmapInstance.layerManager.addLayer("Polygon", "InnerGlowPolygon", {
+                    baseCfg: {
+                        visible: true,
+                        enableLevlControl: true,
+                        minVisibleLevel: 1,
+                        maxVisibleLevel: 13,
+                    },
+                    style: {
+                        brightness: 1,
+                        alpha: 1.0,
+                        imgUrl: "../static_stc/img/globe.jpg",
+                        color: "#ffff00",
+                        stickGround: false,
+                    }
+                });
+                layer.setData("http://10.67.0.56:9091/static_stc/json/苏州市geo.json");
+
+                kvmapInstance.viewer.clock.onTick.addEventListener(function() {
+                    console.warn("666");
+                });
+
+
+
+                // window.tilebm = kvmapInstance.layerManager.addLayer("Building", "WhiteTiles", {
+                //     style: {
+                //             url: "https://10.67.24.188:8081/3dtiles/suzhou/tileset.json",
+                //             // url: "http://106.12.93.244/data/3dtiles/sztest/tileset.json",
+                //             // url:"../static/tiles/tileset.json",
+                //             style : "interval_lines",
+                //             maximumScreenSpaceError : 1,
+                //             baseColor : "#3a777f",
+                //             appearMove : true,
+                //             height: 0,
+                //             bloom: true
+                //         }
+                // });
+
+Cesium.ExpandBySTC.bloomInside.brightStrength = 8.5;
+
+                function updateStyle(){
+                    layer.updateStyle({
+                            alpha: options.alpha,
+                            // normalMap: "../static/img/waterNormals.jpg",
+                            color: options.color,
+                            stickGround: options.stickGround,
+                        });
+                }
+
+                function Options(){
+                    this.color = "#ffffff";
+                    this.stickGround = false;
+                    this.alpha = 1.0;
+                }
+                // var options = new Options();
+                // var gui = new dat.GUI();
+                // gui.addColor(options, "color").onFinishChange((val) => {
+                //     options.color = val;
+                //     updateStyle();
+                // });
+                // gui.add(options,"stickGround").onChange(function(value){
+                //     options.stickGround = value;
+                //     updateStyle();
+                // });
+                // gui.add(options,"alpha").min(0.1).max(1).step(0.1).onChange(function(value){
+                //     options.alpha = value;
+                //     updateStyle();
+                // });
+
+                // gui.add(options,"frequency").min(1).max(1000).step(0.1).onChange(function(value){
+                //     options.frequency = value;
+                //     updateStyle();
+                // });
+                // gui.add(options,"specularIntensity").min(0.1).max(200).step(0.1).onChange(function(value){
+                //     options.specularIntensity = value;
+                //     updateStyle();
+                // });
+                // gui.add(options,"fadeFactor").min(0.1).max(200).step(0.1).onChange(function(value){
+                //     options.fadeFactor = value;
+                //     updateStyle();
+                // });
+
+                window.layer = layer;
+                // setTimeout(function(){
+                //     layer.entityLayer.located();
+                // },2000);
+            };
+
+
+            window.testPost = function () {
+                var fragmentShaderSource =
+                    'uniform sampler2D colorTexture; \n' +
+                    'uniform sampler2D colorTexture1; \n' +
+                    'varying vec2 v_textureCoordinates; \n' +
+                    'const int KERNEL_WIDTH = 16; \n' +
+                    'void main(void) \n' +
+                    '{ \n' +
+                    '    gl_FragColor = texture2D(colorTexture1,v_textureCoordinates); \n' +
+                    '} \n';
+                window.post = viewer.scene.postProcessStages.add(new Cesium.PostProcessStage({
+                    fragmentShader : fragmentShaderSource,
+                    uniforms : {
+                        colorTexture1 : function() {
+                            // return Cesium.ExpandBySTC.bloomInside.primitiveBloomFBOInside._colorTextures[0];
+                            // return Cesium.ExpandBySTC.bloomInside.blurYFbo._colorTextures[0];
+                            return Cesium.ExpandBySTC.bloomTiles.blurYFbo._colorTextures[0];
+                        }
+                    }
+                }));
+            }
+            
+
+        </script>
+    </body>
+</html>

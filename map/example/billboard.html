@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <img src="../static_stc/img/zhongyuan.png" alt="" id="stcwebp">
+        <canvas id = "copy" width = "160" height = "160"></canvas>
+        <script>
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                kvmapInstance.layerManager.ableAvoid = true;
+                
+                function Options(){
+                    this.imgUrl = "../static_stc/mark/star.png";
+                    this.scale = 1;
+                    this.height = 0.5;
+                    this.bloom = true;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                function updateStyle() {
+                    layer.updateStyle({
+                        imgUrl: options.imgUrl, //图片
+                        scale: options.scale, //缩放
+                        height: options.height,
+                        bloom: options.bloom,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'point_f1'",
+                                style: {
+                                    scale: 5,
+                                    imgUrl: "../static_stc/mark/marker.png"
+                                }
+                            }
+                        ]
+                    });
+                }
+                gui.add(options, "imgUrl").onFinishChange(function(value) {
+                    options.imgUrl =value;
+                    updateStyle();
+                });
+                gui.add(options, "bloom").onFinishChange(function(value) {
+                    options.bloom =value;
+                    updateStyle();
+                });
+                gui.add(options, "scale").min(0.1).max(5).step(0.2).onChange(function(value) {
+                    options.scale =value;
+                    updateStyle();
+                });
+                gui.add(options, "height").min(0.1).max(500).step(5).onChange(function(value) {
+                    options.height =value;
+                    updateStyle();
+                });
+                let layer = kvmapInstance.layerManager.addLayer("stc", "Billboard", {
+                    baseCfg: {
+                        minVisibleLevel: 0,
+                        maxVisibleLevel: 25,
+                        visible: true,
+                    },
+                    style: {
+                        id: "stcbb",
+                        scale: 1, //缩放
+                        bloom: false,
+                        floatHeight: 0,
+                        offsetY: -40,
+                        ableAvoid: false,
+                        ableAnimate: true,
+                        // layerShow: false,
+                        // imgUrl: document.getElementById("stcwebp"),
+                        // condition: [
+                        //     {
+                        //         condition: "{{id}} == 'point_f1'",
+                        //         style: {
+                        //             scale: 2,
+                        //             imgUrl: "../static_stc/mark/marker.png",
+                        //             flash: true,
+                        //         }
+                        //     }
+                        // ]
+                    }
+                });
+                layer.setData("http://10.67.0.56:9091/static/geojson/pointshao.json");
+
+                window.test = function(){
+                    layer.viewer.clock.onTick.addEventListener(function(){
+                        layer.collection.collection.animateVT = layer.v2tTool.getTexture(layer.viewer);
+                        layer.collection.collection.ableAnimate = true;
+                    });
+                }
+
+
+
+                // window.test = function() {
+                //     layer.collection.collection.textureAtlas
+                // }
+
+
+
+                // let layer1 =  kvmapInstance.layerManager.addLayer("stc1", "TextLabel", {
+                //     style: {
+                //         fontSize: 18,
+                //         fillColor: "red",
+                //         scale: 1,
+                //         height: 0,
+                //         showBackground: true,
+                //         backgroundColor: "black",
+                //         bgPX: 3,
+                //         bgPY: 5,
+                //         offsetX: 0,
+                //         offsetY: 0,
+                //         near: 0,
+                //         far: 1000000,
+                //         ratio: 1,
+                //         fieldKey: "Name",
+                //         ableAvoid: true,
+                //     }
+                // });
+                // layer1.setData("http://10.67.0.56:9091/static/geojson/pointshao.json");
+
+
+
+
+
+                // var textData = [];
+                // window.textData = textData;
+
+                // const textArr = ["任意文本", "abcdefghijklmn", "1315", "136", "任意abc456", "吴中区", "吴江区", "工业园区", "张家港市", "昆山市"];
+
+                // for(var i=0;i<50000;i++){
+                //     textData.push({
+                //         longitude: 121 + (Math.random() - 0.5) * 10,
+                //         latitude: 31 + (Math.random() - 0.5) * 10,
+                //         height: 0,
+                //         text: textArr[Math.floor(Math.random() * 10)],
+                //         id: "stc" + (Math.random() - 0.5) * 100,
+                //     });
+                // }
+
+                // console.log(textData.slice(0,10000));
+
+                // let layer2 =  kvmapInstance.layerManager.addLayer("stc2", "CustomTextLabel", {
+                //     baseCfg: {
+                //         visible: true,
+                //         mergeDraw: false,
+                //     },
+                //     style: {
+                //         width: 2000,
+                //         height: 2000,
+                //         billWidth: 0,
+                //         color: "#ff0000",
+                //         size: 20,
+                //         imgUrl: "../../../../static_stc/img/lbxx.jpg",
+                //         font: "微软雅黑",
+                //         paddingTop: 12,
+                //         alpha: 1,
+                //         bloom: false,
+                //         brightness: 1,
+                //         near: 100,
+                //         far: 50000,
+                //         ratio: 0.2,
+                //         scale: 1,
+                //         distanceDisplay: false,
+                //         condition: [],
+                //         northOffset: 0,
+                //         eastOffset: 0,
+                //         heightOffset: 0,
+                //         fixedWidth: 180,
+                //         fixedHeight: 40,
+                //         bold: false,
+                //         ableAvoid: true,
+                //     },
+                //     hooks: {
+                //         endInit: function() {
+                //             console.log(this);
+                //             this.setData(textData.slice(0,5000));
+                //         }
+                //     }
+                // });
+
+
+
+
+
+
+                // window.layer1 = kvmapInstance.layerManager.addLayer("stc1", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer1.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+                // window.layer2 = kvmapInstance.layerManager.addLayer("stc2", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer2.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+                // window.layer3 = kvmapInstance.layerManager.addLayer("stc3", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer3.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+                // window.layer4 = kvmapInstance.layerManager.addLayer("stc4", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer4.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+                // window.layer5 = kvmapInstance.layerManager.addLayer("stc5", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer5.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+                // window.layer6 = kvmapInstance.layerManager.addLayer("stc6", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer6.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+
+                // window.layer7 = kvmapInstance.layerManager.addLayer("stc7", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer7.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+                // window.layer8 = kvmapInstance.layerManager.addLayer("stc8", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer8.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+                // window.layer9 = kvmapInstance.layerManager.addLayer("stc9", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer9.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+
+
+
+
+
+                // window.layer10 = kvmapInstance.layerManager.addLayer("stc10", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer10.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+                // window.layer11 = kvmapInstance.layerManager.addLayer("stc11", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer11.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+                // window.layer12 = kvmapInstance.layerManager.addLayer("stc12", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer12.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+                // window.layer13 = kvmapInstance.layerManager.addLayer("stc13", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer13.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+
+                // window.layer14 = kvmapInstance.layerManager.addLayer("stc14", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer14.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+
+
+                // window.layer15 = kvmapInstance.layerManager.addLayer("stc15", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer15.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+
+
+                // window.layer16 = kvmapInstance.layerManager.addLayer("stc16", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer16.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+
+
+                // window.layer17 = kvmapInstance.layerManager.addLayer("stc17", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer17.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+                
+
+
+                // window.layer18 = kvmapInstance.layerManager.addLayer("stc18", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer18.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+
+                // window.layer19 = kvmapInstance.layerManager.addLayer("stc19", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer19.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+
+
+
+
+                // window.layer20 = kvmapInstance.layerManager.addLayer("stc20", "Billboard", {
+                //     baseCfg: {
+                //         minVisibleLevel: 0,
+                //         maxVisibleLevel: 25,
+                //         visible: true,
+                //     },
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: false,
+                //         floatHeight: 0,
+                //         // layerShow: false,
+                //         // imgUrl: document.getElementById("stcwebp"),
+                //         // condition: [
+                //         //     {
+                //         //         condition: "{{id}} == 'point_f1'",
+                //         //         style: {
+                //         //             scale: 2,
+                //         //             imgUrl: "../static_stc/mark/marker.png",
+                //         //             flash: true,
+                //         //         }
+                //         //     }
+                //         // ]
+                //     }
+                // });
+                // window.layer20.setData("http://10.67.0.56:9091/static/geojson/point1.json");
+
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                window.layer = layer;
+
+
+
+                
+
+                setTimeout(function(){
+                    // layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

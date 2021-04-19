@@ -1,0 +1,459 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-03-18 08:47:20
+ * @LastEditTime: 2021-04-17 11:17:43
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \kvmap\example\style3dtiles.html
+ -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+                /* width:5000px;
+                height: 1800px; */
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+        <script src="./data/smaa.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNjgwYzc1ZS0wNmVjLTRhYWItYmUyMy0yNDM2YWFjOTE1ZjciLCJpZCI6MzQ0NjEsImlhdCI6MTYwMDMzMDg3NH0.7QJwJRUkzLdkDU5B7TiZ-7Ib3quVbpuDDxqy0s9Wxi4";
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            Cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                var tilebm = kvmapInstance.layerManager.addLayer("Building", "WhiteTiles", {
+                    style: {
+                            // url: "https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            // url: "https://10.68.8.20/kmap-server/sanyuansancun/tileset.json",
+                            // url: "http://10.67.0.56:8000/stc/tileset.json",
+                            // url: "http://10.68.8.229:9180/kmap-server/baimo/suzhou/tileset.json",
+                            // url: "http://10.67.0.56:8000/gsq2/tileset.json",
+                            url: "http://jihei-test.ljkjkf.com/3dtiles/os/tileset.json",
+                            // url: "https://10.68.8.229:9181/kmap-server/baimo/suzhoustc/tileset.json",
+                            // url: "http://106.12.93.244/data/3dtiles/sztest/tileset.json",
+                            // url:"../static/tiles/tileset.json",
+                            // url:"../static_stc/testB3dm/tileset.json",
+                            style : "",
+                            maximumScreenSpaceError : 30,
+                            // mixColor  : "#ffffff",
+                            baseColor: "#ffffff",
+                            // baseColor  : "rgba(2,2,6,1.0)",
+                            mixColor: "rgba(90,110,222,1.0)",
+                            // mixColor: "rgba(42,105,217,1.0)",
+                            // mixColor: "rgba(255,255,255,1.0)",
+                            appearMove : false,
+                            // style : "interval_lines",
+                            height: 0,
+                            bloom: false,
+                            useColor: false,
+                            useGradient: false,
+                            ableCustomLight: true,
+                            mixNum: 10.0,
+                            luminanceAtZenith: 0.2,
+                            ableEnvironment: false,
+                            KTXUrl: "../static_stc/ktx/gltf_ibl.ktx",
+                            maximumMemoryUsage: 2048,
+                            skipLevelOfDetail: true,
+                            baseScreenSpaceError: 1,
+                            skipScreenSpaceErrorFactor: 16,
+                            customMetalness: 1.0,
+                            customRoughness: 0.1
+                        }
+                });
+                window.tilebm = tilebm;
+                Cesium.ExpandBySTC.bloomTiles.fgNum = 0.5;
+                Cesium.ExpandBySTC.bloomTiles.blurRadius = 1;
+                Cesium.ExpandBySTC.bloomTiles.brightStrength = 8.5;
+                var context = tilebm.viewer.scene.context;
+
+                if (!Cesium.ExpandBySTC.SMAA.areaTexture) {
+                    Cesium.ExpandBySTC.SMAA.clear = new Cesium.ClearCommand({
+                    color: new Cesium.Color(0.0, 0.0, 0.0, 0.0),
+                    depth: true
+                });
+                    var areaImg = new Image();
+                    areaImg.onload = function() {
+                        Cesium.ExpandBySTC.SMAA.areaTexture = new Cesium.Texture({
+                        context: context,
+                        pixelFormat: Cesium.PixelFormat.RGB,
+                        pixelDatatype: Cesium.PixelDatatype.FLOAT,
+                        flipY: false,
+                        source: areaImg,
+                        sampler: new Cesium.Sampler({
+                            minificationFilter: Cesium.TextureMinificationFilter.LINEAR ,
+                            magnificationFilter: Cesium.TextureMagnificationFilter.LINEAR ,
+                          })
+
+                    });
+                    };
+                    areaImg.src = Cesium.ExpandBySTC.getAreaTexture();
+                    var srarchImg = new Image();
+                    srarchImg.onload = function() {
+                        Cesium.ExpandBySTC.SMAA.searchTexture = new Cesium.Texture({
+                        context: context,
+                        pixelFormat: Cesium.PixelFormat.RGBA,
+                        pixelDatatype: Cesium.PixelDatatype.FLOAT,
+                        flipY: false,
+                        source: srarchImg,
+                        sampler: new Cesium.Sampler({
+                            minificationFilter: Cesium.TextureMinificationFilter.NEAREST,
+                            magnificationFilter: Cesium.TextureMagnificationFilter.NEAREST,
+                          })
+                    });
+                    };
+                    srarchImg.src = Cesium.ExpandBySTC.getSearchTexture();
+                }
+
+                window.testSMAA = function(){
+                    
+    
+                    var smaa1 = new Cesium.MyPostProcessStage({
+                        fragmentShader : fs1,
+                        uniforms : {
+                            'resolution': function() {
+                                return new Cesium.Cartesian2(1.0 / context.drawingBufferWidth, 1.0 / context.drawingBufferHeight)
+                            }
+                        },
+                        vertexShader: vs1,
+                        name: "stage1",
+                    })
+
+                    var smaa2 = new Cesium.MyPostProcessStage({
+                        fragmentShader : fs2,
+                        uniforms : {
+                            'resolution': function() {
+                                return new Cesium.Cartesian2(1.0 / context.drawingBufferWidth, 1.0 / context.drawingBufferHeight)
+                            },
+                            tArea: function() {
+                                return Cesium.ExpandBySTC.SMAA.areaTexture;
+                            },
+                            tSearch: function() {
+                                return Cesium.ExpandBySTC.SMAA.searchTexture;
+                            }
+                        },
+                        vertexShader: vs2,
+                        name: "stage2",
+                    });
+
+                    var smaa3 = new Cesium.MyPostProcessStage({
+                        fragmentShader : fs3,
+                        uniforms : {
+                            'resolution': function() {
+                                return new Cesium.Cartesian2(1.0 / context.drawingBufferWidth, 1.0 / context.drawingBufferHeight)
+                            },
+                            colorTexture: function() {
+                                return Cesium.ExpandBySTC.SMAA.stage2.framebuffer._colorTextures[0];
+                            },
+                            tColor: function() {
+                                return Cesium.ExpandBySTC.SMAA.searchTexture;
+                            }
+                        },
+                        vertexShader: vs3,
+                        name: "stage2",
+                    });
+
+
+
+                    tilebm.viewer.scene.postProcessStages.add(smaa1);
+                    tilebm.viewer.scene.postProcessStages.add(smaa2);
+                    // tilebm.viewer.scene.postProcessStages.add(smaa3);
+
+                    // tilebm.viewer.scene.postProcessStages.add(new Cesium.PostProcessStageComposite({
+                    //     inputPreviousStageTexture: true,
+                    //     stages : [smaa1, smaa2]
+                    //     // stages : [smaa2]
+                    // }));
+
+
+                    // var fs =
+                    //     'uniform sampler2D colorTexture;\n' +
+                    //     'uniform vec3 offset;\n' +
+                    //     'varying vec2 v_textureCoordinates;\n' +
+                    //     'void main() {\n' +
+                    //     '    gl_FragColor = texture2D(colorTexture, v_textureCoordinates + offset.xy);\n' +
+                    //     '}\n';
+                    // tilebm.viewer.scene.postProcessStages.add(new Cesium.PostProcessStage({
+                    //     fragmentShader : fs,
+                    //     uniforms : {
+                    //         scale : 1.1,
+                    //         offset : function() {
+                    //             return new Cesium.Cartesian3(0, 0, 0);
+                    //         }
+                    //     }
+                    // }));
+                    // Cesium.ExpandBySTC.SMAA.enable = true;
+
+
+
+                }
+
+
+
+
+                var L00 = new Cesium.Cartesian3(
+                0.422893140324417,  0.523445331193193,  0.600458758093589
+                );
+                var L1_1 = new Cesium.Cartesian3(
+                0.208535945828143,  0.344735740024713,  0.430506963266327
+                );
+                var L10 = new Cesium.Cartesian3(
+                0.160201040476682,  0.089331981906026,  0.028824584053831
+                );
+                var L11 = new Cesium.Cartesian3(
+                0.004113592348149,  0.004160829901330, -0.000740648239336
+                );
+                var L2_2 = new Cesium.Cartesian3(
+                -0.000212564047688,  0.002972228631110,  0.000776743025578
+                );
+                var L2_1 = new Cesium.Cartesian3(
+                0.082178032387250,  0.029691568218979, -0.016718759807700
+                );
+                var L20 = new Cesium.Cartesian3(
+                0.034560617182071,  0.021087579239499,  0.011723391123972
+                );
+                var L21 = new Cesium.Cartesian3(
+                0.005749407929939,  0.003202307450189,  0.012591614039401
+                );
+                var L22 = new Cesium.Cartesian3(
+                0.025067200631683,  0.032214087100091,  0.021653131208534
+                );
+                var coefficients = [L00, L1_1, L10, L11, L2_2, L2_1, L20, L21, L22];
+
+
+
+
+                // tilebm.viewer.scene.primitives.add(Cesium.createOsmBuildings());
+
+                const googleProvider = new Cesium.UrlTemplateImageryProvider({
+                        // url : "https://10.67.24.180:8001/%E8%8B%8F%E5%B7%9E%E5%9C%B0%E5%9B%BE%E5%8E%9F%E8%AF%9D%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E%E5%A2%A8%E5%8D%A1%E6%89%98%E5%8E%9F%E5%A7%8B%E7%93%A6%E7%89%87/{z}/{x}/{y}.png",
+                        url: "http://10.67.24.180:8000/{z}/{x}/{y}.png",
+                        maximumLevel: 18,
+                        hasAlphaChannel: false,
+                });
+                kvmapInstance.viewer.imageryLayers.addImageryProvider(googleProvider);
+
+
+
+                // window.environmentMapURL = "../static_stc/ktx/gltf_ibl.ktx";
+                // tilebm.collection.collection._primitives[0].sphericalHarmonicCoefficients = coefficients;
+                // tilebm.collection.collection._primitives[0].specularEnvironmentMaps = environmentMapURL;
+                
+
+                // kvmapInstance.lightManager.setLight("Ambient",{enable: true, color: "red"})
+                function tilesOpts() {
+                    // this.url = "https://10.67.24.188:8081/3dtiles/shanghai/tileset.json";
+                    this.url = "http://10.68.8.229:9180/kmap-server/baimo/suzhou/tileset.json";
+                    // this.url = "../static/tiles/tileset.json";
+                    // this.style = "interval_lines";
+                    this.maximumScreenSpaceError = 1;
+                    this.baseColor = "#ffffff";
+                    this.appearMove = true;
+                    this.height = 0;
+                    this.bloom = true;
+                }
+
+
+    //             kvmapInstance.viewer.terrainProvider = Cesium.createWorldTerrain();
+    //             const newp = new Cesium.WebMapTileServiceImageryProvider({
+    //     url: "http://t0.tianditu.com/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + "1a3004383669fbbd412a3b3f34f38f27",
+    //     layer: "tdtBasicLayer",
+    //     style: "default",
+    //     format: "image/jpeg",
+    //     tileMatrixSetID: "GoogleMapsCompatible",
+    //     minimumLevel: 0,
+    //     maximumLevel: 16,
+    // })
+    // kvmapInstance.viewer.imageryLayers.add(newp);
+
+                var tilestyle = new tilesOpts();
+                var tileGui = new dat.GUI();
+                function updateTileStyle(){
+                    tilebm.updateStyle({
+                            url: tilestyle.url,
+                            style: tilestyle.style,
+                            maximumScreenSpaceError: tilestyle.maximumScreenSpaceError,
+                            baseColor: tilestyle.baseColor, 
+                            appearMove: tilestyle.appearMove, 
+                            height: tilestyle.height,
+                            bloom: tilestyle.bloom,
+                        });
+                }
+                tileGui.add(tilestyle, "url").onFinishChange(function(value){
+                    tilestyle.url = value;
+                    updateTileStyle();
+                });
+                // tileGui.add(tilestyle, "style").onFinishChange(function(value){
+                //     tilestyle.style = value;
+                //     updateTileStyle();
+                // });
+                tileGui.add(tilestyle, "appearMove").onFinishChange(function(value){
+                    tilestyle.appearMove = value;
+                    updateTileStyle();
+                });
+                tileGui.add(tilestyle, "maximumScreenSpaceError").min(0).max(200).step(1).onChange(function(value){
+                    tilestyle.maximumScreenSpaceError = value;
+                    updateTileStyle();
+                });
+                tileGui.add(tilestyle, "height").min(0).max(200).step(1).onChange(function(value){
+                    tilestyle.height = value;
+                    updateTileStyle();
+                });
+                tileGui.addColor(tilestyle, "baseColor").onChange(function(value){
+                    tilestyle.baseColor = value;
+                    updateTileStyle();
+                });
+                tileGui.add(tilestyle, "bloom").onChange(function(value){
+                    tilestyle.bloom = value;
+                    updateTileStyle();
+                });
+
+
+                var mouseClickHandler = new Cesium.ScreenSpaceEventHandler(
+                    kvmapInstance.viewer.scene.canvas,
+                );
+                mouseClickHandler.setInputAction((
+                    movement
+                ) => {
+                    console.log("拾取");
+                    const pickedFeature = kvmapInstance.viewer.scene.pick(movement.position);
+                    console.log(pickedFeature);
+                },
+                Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+                window.layer = tilebm;
+
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+
+
+                function tjhjgy() {
+                // Cesium.ExpandBySTC.lightObj.extendLightSwitch.x = true;
+                // Cesium.ExpandBySTC.lightObj.extendAmbientLightBrightness = 100;
+                // Cesium.ExpandBySTC.lightObj.extendAmbientLightColor = new Cesium.Color(1,1,1);
+                kvmapInstance.lightManager.setLight("Ambient",{
+                    color: "#ffffff",
+                    brightness: 2,
+                    enable: true,
+                });
+            }
+
+            function tjjgd() {
+                // Cesium.ExpandBySTC.lightObj.extendLightSwitch.z = true;
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightPositionWC = new Cesium.Cartesian3(-2780973.833520544, 4687546.901453464, 3302585.8530005324);
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightDirectionWC = new Cesium.Cartesian3(0.8911479981185813, -0.24047491692972006, 0.38474284889636257);
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightColor = new Cesium.Color(10,2,2);
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightDistance = 400;
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightAngle = 30;
+                kvmapInstance.lightManager.setLight("Spot",{
+                    color: "#ff0000",
+                    brightness: 50,
+                    enable: true,
+                    position: {
+                        lon: 120.58924186896418,
+                        lat: 31.319807572809225,
+                        height: 1000
+                    },
+                    distance: 2500,
+                    target: {
+                        lon: 120.57851804233611,
+                        lat: 31.30491530965666,
+                        height: 5
+                    },
+                    angle: 30
+                });
+            }
+
+            function tjdgy() {
+                // Cesium.ExpandBySTC.lightObj.extendPointLightPositionWC = new Cesium.Cartesian3(-2779907.7941673086, 4685283.7404985465, 3306410.7135052555);
+                // Cesium.ExpandBySTC.lightObj.extendLightSwitch.y = true;
+                // Cesium.ExpandBySTC.lightObj.extendPointLightColor = new Cesium.Color(10,2,2);
+                // Cesium.ExpandBySTC.lightObj.extendPointLightDistance = 200;
+                kvmapInstance.lightManager.setLight("Point",{
+                    color: "yellow",
+                    brightness: 50,
+                    enable: true,
+                    position: {
+                        lon: 120.60643836247645,
+                        lat: 31.331695048335483,
+                        height: 100
+                    },
+                    distance: 2200
+                });
+            }
+
+            function tjpxgy() {
+                kvmapInstance.lightManager.setLight("Parallel",{
+                    color: "#ff0000",
+                    brightness: 50,
+                    enable: true,
+                    position: {
+                        lon: 120.58924186896418,
+                        lat: 31.319807572809225,
+                        height: 1000
+                    },
+                    target: {
+                        lon: 120.58367369561216,
+                        lat: 31.309312407333085,
+                        height: 5
+                    },
+                    index: 1,
+                });
+            }
+            function tjpxgy2() {
+                kvmapInstance.lightManager.setLight("Parallel",{
+                    color: "#ff0000",
+                    brightness: 20,
+                    enable: true,
+                    position: {
+                        lon: 120.58924186896418,
+                        lat: 31.319807572809225,
+                        height: 1000
+                    },
+                    target: {
+                        lon: 120.59147519916935,
+                        lat: 31.322393639779573,
+                        height: 5
+                    },
+                    index: 2,
+                });
+            }
+
+tjhjgy();
+tjdgy();
+// tjjgd();
+// tjjgd();
+// tjpxgy();
+// tjpxgy2();
+
+              
+            };
+        </script>
+    </body>
+</html>

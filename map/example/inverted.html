@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvmap.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            function tjdgy() {
+                // Cesium.ExpandBySTC.lightObj.extendPointLightPositionWC = new Cesium.Cartesian3(-2779907.7941673086, 4685283.7404985465, 3306410.7135052555);
+                // Cesium.ExpandBySTC.lightObj.extendLightSwitch.y = true;
+                // Cesium.ExpandBySTC.lightObj.extendPointLightColor = new Cesium.Color(10,2,2);
+                // Cesium.ExpandBySTC.lightObj.extendPointLightDistance = 200;
+                kvmapInstance.lightManager.setLight("Point",{
+                    color: "rgb(255,255,255)",
+                    brightness: 50,
+                    enable: true,
+                    position: {
+                        // lon: 120.69321230175846,
+                        // lat: 31.424003282567366,
+                        // height: 4600
+                        lon: 120.68187825277738,
+                        lat: 31.318924631014976,
+                        height: 850, 
+                    },
+                    distance: 1500
+                });
+            }
+            window.onload = () => {
+                if (!window.kvmap) {
+                    return;
+                }
+                const kvmapInstance = new kvmap.KVMap();
+                window.kvmapInstance = kvmapInstance;
+                var stc = kvmapInstance.initEarth(document.getElementById("app"), {
+                    cesiumViewerCfg: {},
+                    initMapOpts: {
+                        beautifyFilter: {
+                            blend: true,
+                            blendColor: "red",
+                            alpha: 0.5,
+                        },
+                        imageryProvider: "",
+                        initAnimation: {
+                            flyTo: false,
+                            earthRotate: false,
+                        },
+                        angleOfViewCfg: {
+                            heading: 270.0657364860834,
+                            height: 729.1431791834281,
+                            lat: 31.320393273729312,
+                            lon: 120.70043757947109,
+                            pitch: -20.43585339787247,
+                            roll: 359.8179038811258,
+                        },
+                            dubuggerMode: true,
+                    },
+                });
+                window.viewer = kvmapInstance.viewer;
+                stc.then(function() {
+                    tjdgy();
+                    var tilebm = kvmapInstance.addLayer("Building", "tilebm");
+                    tilebm.addEntityLayer({
+                        type: "bmtiles",
+                        data: [],
+                        style: {
+                            url: "https://10.67.24.188:8081/3dtiles/suzhou/tileset.json",
+                            // url:"../static/tiles/tileset.json",
+                            style : "interval_lines",
+                            maximumScreenSpaceError : 60,
+                            baseColor : "#ffffff",
+                            appearMove : true,
+                            height: 0,
+                            bloom: true
+                        },
+                    });
+
+                    var layer = kvmapInstance.addLayer("Polygon", "layer8");
+                    layer.addEntityLayer( {
+                        type: "inverted",
+                        data: "http://10.67.0.56:9091/static/geojson/szWater.geojson",
+                        style: {
+                            amplitude: 10,
+                            animationSpeed: 0.01,
+                            baseWaterColor: "rgba(75,85,84,1)",
+                            frequency: 100,
+                        },
+                    });
+
+                    function updateStyle(){
+                        layer.updateStyle( {
+                            type:'inverted',
+                            style: {
+                                alpha: options.alpha,
+                                // normalMap: "../static/img/waterNormals.jpg",
+                                baseWaterColor: options.baseWaterColor,
+                                animationSpeed: options.animationSpeed,
+                                amplitude: options.amplitude,
+                                frequency: options.frequency * 1000,
+                                specularIntensity: options.specularIntensity,
+                                fadeFactor: options.fadeFactor,
+                                efinition: options.efinition
+                            },
+                        });
+                    }
+
+                    function Options(){
+                        this.baseWaterColor = "#0000ff";
+                        this.animationSpeed = 5;
+                        this.amplitude = 10;
+                        this.frequency = 125;
+                        this.specularIntensity = 100;
+                        this.fadeFactor = 100;
+                        this.efinition = 50;
+                    }
+                    var options = new Options();
+                    var gui = new dat.GUI();
+                    gui.addColor(options, "baseWaterColor").onFinishChange((val) => {
+                        options.baseWaterColor = val;
+                        updateStyle();
+                    });
+                    gui.add(options,"animationSpeed").min(0.1).max(20.0).step(0.1).onChange(function(value){
+                        options.animationSpeed = value;
+                        updateStyle();
+                    });
+                    gui.add(options,"efinition").min(0.1).max(100).step(0.1).onChange(function(value){
+                        options.efinition = value;
+                        updateStyle();
+                    });
+
+                    // gui.add(options,"frequency").min(1).max(1000).step(0.1).onChange(function(value){
+                    //     options.frequency = value;
+                    //     updateStyle();
+                    // });
+                    // gui.add(options,"specularIntensity").min(0.1).max(200).step(0.1).onChange(function(value){
+                    //     options.specularIntensity = value;
+                    //     updateStyle();
+                    // });
+                    // gui.add(options,"fadeFactor").min(0.1).max(200).step(0.1).onChange(function(value){
+                    //     options.fadeFactor = value;
+                    //     updateStyle();
+                    // });
+
+                    window.layer = layer;
+                    // setTimeout(function(){
+                    //     layer.entityLayer.located();
+                    // },2000);
+                    
+                });
+            };
+            window.testDY = function () {
+                // Cesium.ExpandBySTC.mirror.planeOrigin = Cesium.Cartesian3.fromDegrees(
+                //     121.48721079464443,
+                //     31.24406008352879,
+                //     0
+                // );
+                // Cesium.ExpandBySTC.mirror.normal = Cesium.Cartesian3.normalize(
+                //     Cesium.ExpandBySTC.mirror.planeOrigin,
+                //     new Cesium.Cartesian3()
+                // );
+                // Cesium.ExpandBySTC.mirror.MirrorEnable = true;
+                var fragmentShaderSource =
+                    'uniform sampler2D colorTexture; \n' +
+                    'uniform sampler2D daoyingTexture; \n' +
+                    'varying vec2 v_textureCoordinates; \n' +
+                    'void main(void) \n' +
+                    '{ \n' +
+                    '    vec4 daoying = texture2D(daoyingTexture, v_textureCoordinates); \n' +
+                    '    gl_FragColor = daoying; \n' +
+                    '} \n';
+                viewer.scene.postProcessStages.add(new Cesium.PostProcessStage({
+                    fragmentShader : fragmentShaderSource,
+                    uniforms:{
+                        daoyingTexture:function(){
+                            return Cesium.ExpandBySTC.mirror.MirrorFrameBuffer&&Cesium.ExpandBySTC.mirror.MirrorFrameBuffer._colorTextures[0] || viewer.scene.context.defaultTexture
+                        }
+                    }
+                }));
+            }
+
+            // function testinver() {
+            //     var fragmentShaderSource =
+            //     "uniform sampler2D colorTexture; \n" +
+            //     "uniform sampler2D inverTexture; \n" +
+            //     "varying vec2 v_textureCoordinates; \n" +
+            //     "void main(void) \n" +
+            //     "{ \n" +
+            //     "    gl_FragColor = texture2D(inverTexture,v_textureCoordinates); gl_FragColor = vec4(1.0);\n" +
+            //     "} \n";
+            //     viewer.scene.postProcessStages.add(
+            //     new Cesium.PostProcessStage({
+            //         fragmentShader: fragmentShaderSource,
+            //         uniforms: {
+            //             inverTexture: Cesium.ExpandBySTC.mirror.stcTex,
+            //         }
+            //     })
+            //     );
+            // }
+
+
+        </script>
+    </body>
+</html>

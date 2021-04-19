@@ -1,0 +1,13 @@
+{
+    "name": "@ksh/cesium-extension",
+    "version": "1.3.5",
+    "types": "Build/Cesium/Cesium.d.ts",
+    "description": "",
+    "main": "./Build/Cesium/Cesium.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
+  }
+  

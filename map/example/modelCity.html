@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            function tjhjgy() {
+                // Cesium.ExpandBySTC.lightObj.extendLightSwitch.x = true;
+                // Cesium.ExpandBySTC.lightObj.extendAmbientLightBrightness = 100;
+                // Cesium.ExpandBySTC.lightObj.extendAmbientLightColor = new Cesium.Color(1,1,1);
+                kvmapInstance.lightManager.setLight("Ambient",{
+                    color: "#ffffff",
+                    brightness: 2,
+                    enable: true,
+                });
+            }
+            function tjjgd() {
+                // Cesium.ExpandBySTC.lightObj.extendLightSwitch.z = true;
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightPositionWC = new Cesium.Cartesian3(-2780973.833520544, 4687546.901453464, 3302585.8530005324);
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightDirectionWC = new Cesium.Cartesian3(0.8911479981185813, -0.24047491692972006, 0.38474284889636257);
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightColor = new Cesium.Color(10,2,2);
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightDistance = 400;
+                // Cesium.ExpandBySTC.lightObj.extendSpotLightAngle = 30;
+                kvmapInstance.lightManager.setLight("Spot",{
+                    color: "#ffffff",
+                    brightness: 50,
+                    enable: true,
+                    position: {
+                        lon: 120.67976948552656,
+                        lat: 31.42580204784008,
+                        height: 1800
+                    },
+                    distance: 3200,
+                    target: {
+                        lon: 120.70499590488679,
+                        lat: 31.33320598630563,
+                        height: 0
+                    },
+                    angle: 30
+                });
+            }
+            const IntervalLineShaderText =
+            // "float stc_pl = fract(czm_frameNumber / 120.0) * 3.14159265 * 2.0;\n" +
+            // "float stc_sd = (abs(v_stcVertex.z) + 150.0) / 200.0 + sin(stc_pl) * 0.2;\n" +
+            // "gl_FragColor *= vec4(stc_sd, stc_sd, stc_sd, 1.0);\n" +
+
+            // "gl_FragColor *= vec4(1.2);\n" +
+            "float stc_a13 = fract(czm_frameNumber / 360.0);\n" +
+            "float stc_h = fract(abs(v_stcVertex.z) / 50.0);\n" +
+            "if(stc_h>0.05)return;\n" +
+            "gl_FragColor.rgb += gl_FragColor.rgb * (1.0 - stc_h);\n";
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+
+                
+
+// tjhjgy();
+// tjdgy();
+// tjjgd();
+
+                function updateStyle(){
+                    layer.updateStyle({
+                            // modelUrl: options.modelUrl, //模型
+                            speed: options.speed, //缩放
+                            // color: options.color,
+                            color: `rgba(255.0,255.0,255.0,${Math.random()})`,
+                            uvMove: options.uvMove,
+                            appear: options.appear,
+                            styleType: options.styleType,
+                            tX: options.tX,
+                            tY: options.tY,
+                            tZ: options.tZ,
+                            scale: options.scale,
+                            angle: options.angle,
+                            brightness: options.brightness
+                        });
+                }
+                // Cesium.ExpandBySTC.Gltf.ableUvMove = true;
+                function Options(){
+                    this.modelUrl = "../static_stc/gltf/ntzy/nantongzhongyuan.gltf", //模型
+                    this.scale = 1;
+                    this.speed = 1;
+                    this.angle = 0;
+                    this.tZ = 0;
+                    this.ableRotate = false;
+                    // this.east = 11488;
+                    // this.north = 1881;
+                    this.tX = 0;
+                    this.tY = 0;
+                    this.color = "#ffffff";
+                    // this.styleType = "breath_lamp";
+                    this.appear = true;
+                    this.uvMove = false;
+                    this.brightness = 1;
+                    this.alpha = 80;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                // gui.add(options,"modelUrl").onFinishChange(function(val){
+                //     options.modelUrl = val;
+                //     updateStyle();
+                // });
+                gui.addColor(options, 'color').onChange(function(value){
+                    options.color = value;
+                    updateStyle();
+                });
+                gui.add(options, 'uvMove').onChange(function(value){
+                    options.uvMove = value;
+                    updateStyle();
+                });
+                gui.add(options, 'appear').onChange(function(value){
+                    options.appear = value;
+                    updateStyle();
+                });
+                // gui.add(options, 'styleType').onChange(function(value){
+                //     options.styleType = value;
+                //     updateStyle();
+                // });
+                gui.add(options, 'scale').min(0).max(1000).step(0.0001).onChange(function(value){
+                    options.scale = value;
+                    updateStyle();
+                });
+                gui.add(options, 'brightness').min(0).max(200).step(0.0001).onChange(function(value){
+                    options.brightness = value;
+                    updateStyle();
+                });
+                gui.add(options, 'angle').min(0).max(360).step(1).onChange(function(value){
+                    options.angle = value;
+                    updateStyle();
+                });
+                gui.add(options, 'tZ').min(-200).max(200).step(0.1).onChange(function(value){
+                    options.tZ = value;
+                    updateStyle();
+                });
+                gui.add(options, 'speed').min(1).max(10).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+                gui.add(options, 'tX').min(-10000).max(10000).step(0.1).onChange(function(value){
+                    options.tX = value;
+                    updateStyle();
+                });
+                gui.add(options, 'tY').min(-10000).max(10000).step(0.1).onChange(function(value){
+                    options.tY = value;
+                    updateStyle();
+                });
+                const szorigin = {
+                    // lat: 31.303463724870234,
+                    // lon: 120.69165898427595
+                    lon: 120.6052,
+                    lat: 31.322138
+                }
+                    const dtlayers = [{"__config":{"name":"配置1","key":"default"},"providerIndex":1,"type":"UrlTemplate","server":"http://10.67.24.180:8000/{z}/{x}/{y}.png","maximumLevel":10,"isLimit":true,"rectangle":{"east":"134.900719551168","north":"50.8636725171779","south":"18.4944571779821","west":"72.916344551168"}}];
+                    // kvmapInstance.sceneControl.setImageryProvider(dtlayers);
+                    let layer = kvmapInstance.layerManager.addLayer("Building", "ModelCity", {
+                        baseCfg: {
+                            brightness: 20,
+                        },
+                        style: {
+                            // modelUrl: "../static_stc/gltf/3Dicon/Hospital_new.gltf", //模型
+                            modelUrl: "../static_stc/gltf/lxg.glb", //模型
+                            // modelUrl: "https://10.68.8.64/usermng-server/file/model3d/ksh3d/9769/22(1).gltf", //模型
+                            scale: 1,
+                            uvMove: false,
+                            appear: false,
+                            ableBloom: true,
+                            angle: 0,
+                            // styleType: "breath_lamp",
+                            color: "white",
+                            longitude: szorigin.lon,
+                            latitude: szorigin.lat,
+                            brightness: 0.2,
+                            alpha: 1,
+                            ableCustomLight: false,
+                            ableEnvironment: true,
+                            KTXUrl: "../static_stc/ktx/gltf_ibl.ktx",
+                        }
+                    });
+
+                    layer.located();
+                    window.layer = layer;
+
+                    const googleProvider = new Cesium.UrlTemplateImageryProvider({
+                        // url : "https://10.67.24.180:8001/%E8%8B%8F%E5%B7%9E%E5%9C%B0%E5%9B%BE%E5%8E%9F%E8%AF%9D%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E%E5%A2%A8%E5%8D%A1%E6%89%98%E5%8E%9F%E5%A7%8B%E7%93%A6%E7%89%87/{z}/{x}/{y}.png",
+                        url: "http://10.67.24.180:8000/{z}/{x}/{y}.png",
+                        maximumLevel: 18,
+                        hasAlphaChannel: false,
+                });
+                kvmapInstance.viewer.imageryLayers.addImageryProvider(googleProvider);
+
+                    
+
+            function tjdgy() {
+                // Cesium.ExpandBySTC.lightObj.extendPointLightPositionWC = new Cesium.Cartesian3(-2779907.7941673086, 4685283.7404985465, 3306410.7135052555);
+                // Cesium.ExpandBySTC.lightObj.extendLightSwitch.y = true;
+                // Cesium.ExpandBySTC.lightObj.extendPointLightColor = new Cesium.Color(10,2,2);
+                // Cesium.ExpandBySTC.lightObj.extendPointLightDistance = 200;
+                kvmapInstance.lightManager.setLight("Point",{
+                    color: "rgb(255,255,255)",
+                    brightness: 50,
+                    enable: true,
+                    position: {
+                        // lon: 120.69321230175846,
+                        // lat: 31.424003282567366,
+                        // height: 4600
+                        lon: 120.60503216321536,
+                        lat: 31.322253920738802,
+                        height: 0, 
+                    },
+                    distance: 250
+                });
+            }
+
+
+                    map3d.kvmap.cameraControl.rotatePoint({
+                        type: "else",
+                        lon: 120.61923042046448,
+                        lat: 31.373883649301924,
+                        distance: 100000,
+                        pitch: 20,
+                        height: 0,speed:5
+                    })
+
+                    xkd.core.sceneAnimate.trigger('60d25000000447330364','6c4c8c96-3554-558d-a8de-20fca9837fad')
+
+                    map3d.kvmap.cameraControl.stopRotatePoint();map3d.kvmap.cameraControl.roamOnLine([{lon: 120.7025637208887,lat: 31.325784350153352},{lon: 120.68032826097006,lat: 31.32334357996846}
+                    ],{
+                        height: 200,
+                        speed: 3,
+                    })
+
+                    map3d.kvmap.cameraControl.quitRoamOnLine();map3d.kvmap.cameraControl.rotatePoint({
+                        type: "else",
+                        lon: 120.67484224901841,
+                        lat: 31.31899838079353,
+                        distance: 3000,
+                        pitch: 26,
+                        height: 0,speed:10
+                    })
+
+
+                    // map3d.kvmap.cameraControl.rotatePoint({
+                    //     type: "else",
+                    //     lon: 120.61923042046448,
+                    //     lat: 31.373883649301924,
+                    //     distance: 150000,
+                    //     pitch: 20,
+                    //     height: 0,speed:5
+                    // })
+
+                //     const googleProvider = new Cesium.UrlTemplateImageryProvider({
+                //         // url : "https://10.67.24.180:8001/%E8%8B%8F%E5%B7%9E%E5%9C%B0%E5%9B%BE%E5%8E%9F%E8%AF%9D%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E%E5%A2%A8%E5%8D%A1%E6%89%98%E5%8E%9F%E5%A7%8B%E7%93%A6%E7%89%87/{z}/{x}/{y}.png",
+                //         // url: "http://10.67.24.180:8000/{z}/{x}/{y}.png",
+                //         url: "https://10.67.8.79:8443/test-server/test/gofastdfs_test/{z}/{x}/{y}",
+                //         maximumLevel: 18,
+                //         hasAlphaChannel: false,
+                // });
+                // kvmapInstance.viewer.imageryLayers.addImageryProvider(googleProvider);
+
+
+
+
+
+
+                    kvmapInstance.sceneControl.setSkyBox({
+                        divisionHeight: 300000,
+                        near: {
+                        positiveX: "../static_stc/SkyBox/westSun/posX.png",
+                        negativeX: "../static_stc/SkyBox/westSun/negX.png",
+                        positiveY: "../static_stc/SkyBox/westSun/posY.png",
+                        negativeY: "../static_stc/SkyBox/westSun/negY.png",
+                        positiveZ: "../static_stc/SkyBox/westSun/posZ.png",
+                        negativeZ: "../static_stc/SkyBox/westSun/negZ.png",
+                        }
+                    })
+
+                    // var environmentMapURL = "../static_stc/ktx/gltf_ibl.ktx";
+                    // layer.collection.collection._primitives[0].specularEnvironmentMaps = environmentMapURL;
+                    
+
+window.layer = layer;
+
+// setTimeout(function(){
+//                         layer.entityLayer.located();
+//                     },2000);
+
+//                     let layer1 = kvmapInstance.addLayer("Building", "layer1");
+//                     layer1.addEntityLayer( {
+//                         type: "gltf",
+//                         data: [
+//                             {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             },
+//                         ],
+//                         style: {
+//                             // modelUrl: "../static_stc/gltf/3Dicon/Hospital_new.gltf", //模型
+//                             modelUrl: "../static_stc/gltf/511/gs_new.gltf", //模型
+//                             transform: {
+//                                 scale: 0.855
+//                             },
+//                             uvMove: false,
+//                             appear: true,
+//                             styleType: "breath_lamp",
+//                             color: "blue",
+//                             position: {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             }
+//                         },
+//                     });
+
+//                     let layer2 = kvmapInstance.addLayer("Building", "layer2");
+//                     layer2.addEntityLayer( {
+//                         type: "gltf",
+//                         data: [
+//                             {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             },
+//                         ],
+//                         style: {
+//                             // modelUrl: "../static_stc/gltf/3Dicon/Hospital_new.gltf", //模型
+//                             modelUrl: "../static_stc/gltf/2020.6.5/gyyq.gltf", //模型
+//                             transform: {
+//                                 scale: 0.855
+//                             },
+//                             uvMove: false,
+//                             appear: true,
+//                             // styleType: "breath_lamp",
+//                             // color: "blue",
+//                             position: {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             }
+//                         },
+//                     });
+//                     window.layer2= layer2;
+
+//                     let layer3 = kvmapInstance.addLayer("Building", "layer3");
+//                     layer3.addEntityLayer( {
+//                         type: "gltf",
+//                         data: [
+//                             {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             },
+//                         ],
+//                         style: {
+//                             modelUrl: "../static_stc/gltf/511/hq_new.gltf", //模型
+//                             transform: {
+//                                 scale: 0.855
+//                             },
+//                             uvMove: false,
+//                             appear: true,
+//                             styleType: "breath_lamp",
+//                             color: "blue",
+//                             position: {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             }
+//                         },
+//                     });
+
+//                     let layer4 = kvmapInstance.addLayer("Building", "layer4");
+//                     layer4.addEntityLayer( {
+//                         type: "gltf",
+//                         data: [
+//                             {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             },
+//                         ],
+//                         style: {
+//                             modelUrl: "../static_stc/gltf/511/ks_new.gltf", //模型
+//                             transform: {
+//                                 scale: 0.855
+//                             },
+//                             uvMove: false,
+//                             appear: true,
+//                             styleType: "breath_lamp",
+//                             color: "blue",
+//                             position: {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             }
+//                         },
+//                     });
+
+//                     let layer5 = kvmapInstance.addLayer("Building", "layer5");
+//                     layer5.addEntityLayer( {
+//                         type: "gltf",
+//                         data: [
+//                             {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             },
+//                         ],
+//                         style: {
+//                             modelUrl: "../static_stc/gltf/511/tc_new.gltf", //模型
+//                             transform: {
+//                                 scale: 0.855
+//                             },
+//                             uvMove: false,
+//                             appear: true,
+//                             styleType: "breath_lamp",
+//                             color: "blue",
+//                             position: {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             }
+//                         },
+//                     });
+
+//                     let layer6 = kvmapInstance.addLayer("Building", "layer6");
+//                     layer6.addEntityLayer( {
+//                         type: "gltf",
+//                         data: [
+//                             {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             },
+//                         ],
+//                         style: {
+//                             modelUrl: "../static_stc/gltf/511/wj_new.gltf", //模型
+//                             transform: {
+//                                 scale: 0.855
+//                             },
+//                             uvMove: false,
+//                             appear: true,
+//                             styleType: "breath_lamp",
+//                             color: "blue",
+//                             position: {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             }
+//                         },
+//                     });
+
+//                     // let layer7 = kvmapInstance.addLayer("Building", "layer7");
+//                     // layer7.addEntityLayer( {
+//                     //     type: "gltf",
+//                     //     data: [
+//                     //         {
+//                     //             lon: szorigin.lon,
+//                     //             lat: szorigin.lat,
+//                     //         },
+//                     //     ],
+//                     //     style: {
+//                     //         modelUrl: "../static_stc/gltf/511/wz.gltf", //模型
+//                     //         transform: {
+//                     //             scale: 0.855
+//                     //         },
+//                     //         uvMove: false,
+//                     //         appear: true,
+//                     //         styleType: "breath_lamp",
+//                     //         color: "blue"
+//                     //     },
+//                     // });
+
+//                     let layer8 = kvmapInstance.addLayer("Building", "layer8");
+//                     layer8.addEntityLayer( {
+//                         type: "gltf",
+//                         data: [
+//                             {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             },
+//                         ],
+//                         style: {
+//                             modelUrl: "../static_stc/gltf/511/xc_new.gltf", //模型
+//                             transform: {
+//                                 scale: 0.855
+//                             },
+//                             uvMove: false,
+//                             appear: true,
+//                             styleType: "breath_lamp",
+//                             color: "blue",
+//                             position: {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             }
+//                         },
+//                     });
+
+//                     let layer9 = kvmapInstance.addLayer("Building", "layer9");
+//                     layer9.addEntityLayer( {
+//                         type: "gltf",
+//                         data: [
+//                             {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             },
+//                         ],
+//                         style: {
+//                             modelUrl: "../static_stc/gltf/511/zjg_new.gltf", //模型
+//                             transform: {
+//                                 scale: 0.855
+//                             },
+//                             uvMove: false,
+//                             appear: true,
+//                             styleType: "breath_lamp",
+//                             color: "blue",
+//                             position: {
+//                                 lon: szorigin.lon,
+//                                 lat: szorigin.lat,
+//                             }
+//                         },
+//                     });
+            };
+        </script>
+    </body>
+</html>

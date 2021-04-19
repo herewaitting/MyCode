@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+
+                function updateStyle(){
+                    layer.updateStyle({
+                            color: options.color,
+                            speed: options.speed, //动画速度
+                            radius: options.radius,
+                            // imgUrl: options.imgUrl,
+                            brightness: options.brightness,
+                            bloom: options.bloom,
+                        });
+                }
+
+                function Options(){
+                    this.color = "#00fff0";
+                    this.speed = 5;
+                    this.radius = 200;
+                    this.imgUrl = "";
+                    this.brightness = 0;
+                    this.bloom = false;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options, "color").onChange((val) => {
+                    options.color = val;
+                    updateStyle();
+                });
+                gui.add(options, "imgUrl").onFinishChange((val) => {
+                    options.imgUrl = val;
+                    updateStyle();
+                });
+                gui.add(options,"bloom").onChange(function(value){
+                    options.bloom = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"speed").min(1).max(20).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"radius").min(100).max(1000).step(100).onFinishChange(function(value){
+                    options.radius = value;
+                    updateStyle();
+                });
+                gui.add(options, 'brightness').min(0).max(100).step(1).onChange(function(value){
+                    options.brightness = value;
+                    updateStyle()
+                });
+                let layer = kvmapInstance.layerManager.addLayer("stc", "RotateImage", {
+                    style: {
+                        color: "#00fff0",
+                        speed: 5, //动画速度
+                        radius: 200,
+                    }
+                });
+                layer.setData([
+                            {
+                                lon: 121.4743152757169,
+                                lat: 31.232720898455653,
+                            },
+                            {
+                                lon: 121.52050254875654,
+                                lat: 31.224927649720218,
+                            },
+                        ]);
+                
+
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

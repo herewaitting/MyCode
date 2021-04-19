@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+
+
+                var viewer = kvmapInstance.viewer;
+                    window.testPost = function () {
+                        var fragmentShaderSource =
+                            'uniform sampler2D colorTexture; \n' +
+                            'uniform sampler2D colorTexture1; \n' +
+                            'varying vec2 v_textureCoordinates; \n' +
+                            'const int KERNEL_WIDTH = 16; \n' +
+                            'void main(void) \n' +
+                            '{ \n' +
+                            '    gl_FragColor = texture2D(colorTexture1,v_textureCoordinates); \n' +
+                            '} \n';
+                        viewer.scene.postProcessStages.add(new Cesium.PostProcessStage({
+                            fragmentShader : fragmentShaderSource,
+                            uniforms : {
+                                colorTexture1 : function() {
+                                    return Cesium.ExpandBySTC.primitiveBloomFBO._colorTextures[0];
+                                }
+                            }
+                        }));
+                    }
+                    
+
+                const wallData = [
+                    {
+                        longitude :120,
+                        latitude:30,
+                        height:0
+                    },
+                    {
+                        longitude :120,
+                        latitude:31,
+                        height:0
+                    },
+                    {
+                        longitude :121,
+                        latitude:31,
+                        height:0
+                    },
+                    {
+                        longitude :121,
+                        latitude:30,
+                        height:0
+                    }
+                ];
+
+
+                function updateStyle(){
+                    layer.updateStyle({
+                            color: options.color,
+                            height: options.height,
+                            repeat: options.repeat,
+                            speed: options.speed,
+                            bloom: options.bloom,
+                            brightness: options.brightness,
+                        });
+                }
+
+                function Options(){
+                    this.color = "#ffffff";
+                    this.height = 100;
+                    this.repeat = 8;
+                    this.speed = 1;
+                    this.bloom = false;
+                    this.brightness = 1;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options, 'color').onFinishChange(function(value){
+                    options.color = value;
+                    updateStyle();
+                });
+                gui.add(options, 'bloom').onChange(function(value){
+                    options.bloom = value;
+                    updateStyle();
+                });
+
+                gui.add(options, 'repeat').min(1).max(50).step(2).onChange(function(value){
+                    options.repeat = value;
+                    updateStyle();
+                });
+                gui.add(options, 'speed').min(1).max(50).step(2).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+                gui.add(options, 'brightness').min(1).max(10).step(0.1).onChange(function(value){
+                    options.brightness = value;
+                    updateStyle();
+                });
+
+                gui.add(options, 'height').min(20).max(500).step(10).onFinishChange(function(value){
+                    options.height = value;
+                    updateStyle();
+                });
+                
+                window.layer = kvmapInstance.layerManager.addLayer('Polygon','WaveRiseWall', {
+                    style: {
+                        height:1000,
+                        repeat: 8,
+                        color: "#ffffff",
+                        speed: 1,
+                        brightness: 1,
+                    }
+                });
+                layer.setData(wallData);
+
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

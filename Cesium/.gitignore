@@ -1,0 +1,12 @@
+node_modules
+Build
+./cesium-extension/Build
+Source/Shaders/*.js
+Source/Shaders/Appearances/*.js
+Source/Shaders/Builtin/*.js
+Source/Shaders/Builtin/Constants/*.js
+Source/Shaders/Builtin/Functions/*.js
+Source/Shaders/Builtin/Structs/*.js
+Source/Shaders/Materials/*.js
+Source/Shaders/PostProcessStages/*.js
+ThirdParty

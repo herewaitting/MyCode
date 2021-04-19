@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            window.onload = () => {
+                Cesium.buildModuleUrl("");
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+
+                function updateStyle(){
+                    layer.updateStyle({
+                            color: options.color,
+                            speed: options.speed, //动画速度
+                            radius: options.radius,
+                            bloom: options.bloom,
+                            brightness: options.brightness,
+                            maxScale: options.maxScale,
+                            condition: [
+                                {
+                                    condition: "{{id}} == 'stc1'",
+                                    style: {
+                                        color: "blue",
+                                        radius:1000
+                                    }
+                                }
+                            ]
+                        });
+                }
+
+                function Options(){
+                    this.color = "#ff00ff";
+                    this.speed = 1;
+                    this.radius = 200;
+                    this.bloom = true;
+                    this.brightness = 0;
+                    this.maxScale = 2;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options, "color").onFinishChange((val) => {
+                    options.color = val;
+                    updateStyle();
+                });
+
+                gui.add(options,"speed").min(0).max(10).step(0.1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"radius").min(100).max(1000).step(100).onFinishChange(function(value){
+                    options.radius = value;
+                    updateStyle();
+                });
+                gui.add(options,"maxScale").min(1).max(10).step(0.1).onFinishChange(function(value){
+                    options.maxScale = value;
+                    updateStyle();
+                });
+                gui.add(options,"bloom").onFinishChange(function(value){
+                    options.bloom = value;
+                    updateStyle();
+                });
+                gui.add(options,"brightness").min(0).max(500).step(1).onChange(function(value){
+                        options.brightness = value;
+                        updateStyle();
+                    });
+
+                let layer = kvmapInstance.layerManager.addLayer("stc", "WaveRect", {
+                    style: {
+                        color: "red",
+                        speed: 1, //动画速度
+                        radius: 200,
+                        maxScale: 2,
+                        bloom: true,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'stc1'",
+                                style: {
+                                    color: "yellow",
+                                    radius: 400
+                                }
+                            }
+                        ]
+                    }
+                });
+                layer.setData([
+                            {
+                                longitude: 121.4743152757169,
+                                latitude: 31.232720898455653,
+                                id: "stc1"
+                            },
+                            {
+                                longitude: 121.52050254875654,
+                                latitude: 31.224927649720218,
+                                id: "stc2"
+                            },
+                        ]);
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

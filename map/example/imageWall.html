@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                    
+
+                    const wallData = [
+                        {
+                            longitude:121.50843118073439,
+                            latitude:31.236240694308645,
+                            height:0
+                        }
+
+                        ,
+                        {
+                            longitude:121.4949638274033,
+                            latitude:31.23268692936606,
+                            height:0
+                        }
+                        ,
+                        {
+                            longitude:121.49075630220453,
+                            latitude:31.237137939807795,
+                            height:0
+                        },
+                        {
+                            longitude:121.48908169024442,
+                            latitude:31.24119430424044,
+                            height:0
+                        },
+                        {
+                            longitude:121.49380319963136,
+                            latitude:31.245482565203346,
+                            height:0
+                        },
+                        {
+                            longitude:121.50087726002816,
+                            latitude:31.24796874409237,
+                            height:0
+                        },
+                        {
+                            longitude:121.50843118073439,
+                            latitude:31.236240694308645,
+                            height:0
+                        }
+                    ];
+
+
+                    function updateStyle(){
+                        layer.updateStyle({
+                                baseColor: options.baseColor,
+                                height: options.height,
+                                repeat: options.repeat,
+                                imgUrl: options.imgUrl,
+                                speed: options.speed
+                            });
+                    }
+
+                    function Options(){
+                        this.baseColor = "#ffffff";
+                        this.height = 200;
+                        this.repeat = 8;
+                        this.imgUrl = '../static/img/green.jpg';
+                        this.speed = 1;
+                    }
+                    var options = new Options();
+                    var gui = new dat.GUI();
+                    gui.addColor(options, 'baseColor').onFinishChange(function(value){
+                        options.color = value;
+                        updateStyle();
+                    });
+                    gui.add(options, 'imgUrl').onFinishChange(function(value){
+                        options.imgUrl = value;
+                        updateStyle();
+                    });
+
+                    gui.add(options, 'repeat').min(1).max(50).step(2).onChange(function(value){
+                        options.repeat = value;
+                        updateStyle();
+                    });
+                    gui.add(options, 'speed').min(1).max(50).step(2).onChange(function(value){
+                        options.speed = value;
+                        updateStyle();
+                    });
+
+                    gui.add(options, 'height').min(-500).max(500).step(10).onFinishChange(function(value){
+                        options.height = value;
+                        updateStyle();
+                    });
+                    
+                    // window.layer = kvmapInstance.layerManager.addLayer('Polygon','ImageWall', {
+                    //     style: {
+                    //         height:200,
+                    //         imgUrl:'../static_stc/img/hou.png',
+                    //         repeat: 8,
+                    //         baseColor: 'yellow',
+                    //         speed: 1
+                    //     }
+                    // });
+                    // layer.setData(wallData);
+
+
+                    window.layer1 = kvmapInstance.layerManager.addLayer('Polygon1','ImageWall', {
+                        baseCfg:{
+                            brightness: 20
+                        },
+                        style: {
+                            height:-200,
+                            imgUrl:'../static_stc/img/jbqing.png',
+                            repeat: 8,
+                            baseColor: 'yellow',
+                            speed: 1
+                        }
+                    });
+                    layer1.setData(wallData);
+
+                    // window.layer = layer;
+                    setTimeout(function(){
+                        layer1.located();
+                    },2000);
+            };
+        </script>
+    </body>
+</html>

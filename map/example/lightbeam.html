@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            function Options(){
+                this.speed = 1;
+                this.radius = 100;
+                this.height = 0;
+                this.ratio = 50;
+                this.color = "#ff00ff";
+                this.baseRadiusScale = 2;
+                this.brightness = 0;
+            }
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+
+                window.viewer = kvmapInstance.viewer;
+
+
+                window.kvmapInstance = kvmapInstance;
+                
+
+                function updateStyle() {
+                    layer.updateStyle({
+                            speed :options.speed,
+                            radius : options.radius,
+                            ratio :options.ratio,
+                            color : options.color,
+                            baseRadiusScale: options.baseRadiusScale,
+                            brightness: options.brightness
+                            // imgUrl: "../static/img/lbxx.jpg",
+                        });
+                }
+
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options, "color").onChange(function(value){
+                    options.color = value;
+                    updateStyle()
+                });
+                gui.add(options, 'speed').min(0).max(10).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle()
+                });
+                gui.add(options, 'radius').min(0).max(200).step(2).onFinishChange(function(value){
+                    options.radius = value;
+                    updateStyle()
+                });
+                gui.add(options, 'baseRadiusScale').min(0).max(10).step(0.5).onFinishChange(function(value){
+                    options.baseRadiusScale = value;
+                    updateStyle()
+                });
+                gui.add(options, 'ratio').min(0).max(50).step(1).onChange(function(value){
+                    options.ratio = value;
+                    updateStyle()
+                });
+                gui.add(options, 'brightness').min(0).max(5).step(0.1).onChange(function(value){
+                    options.brightness = value;
+                    updateStyle()
+                });
+                let dataArr = [{"longitude":121.50135971524665,"latitude":31.235522843354545,"height":0,"id":"id_1584606407602"},{"longitude":121.504114277695,"latitude":31.240445763776645,"height":0,"id":"id_1584606415647"},{"longitude":121.50344559750206,"latitude":31.236645160884255,"height":0,"id":"id_1584606417948"},{"longitude":121.5106176630394,"latitude":31.234325520250433,"height":0,"id":"id_1584606420182"},{"longitude":121.51304874674881,"latitude":31.231190052523566,"height":0,"id":"id_1584606422683"},{"longitude":121.51840788822524,"latitude":31.232090137907768,"height":0,"id":"id_1584606423651"},{"longitude":121.49360096305487,"latitude":31.25119797273698,"height":0,"id":"id_1584606427121"},{"longitude":121.4864978768977,"latitude":31.25036717543315,"height":0,"id":"id_1584606428190"},{"longitude":121.47922640885557,"latitude":31.24995555276136,"height":0,"id":"id_1584606429791"},{"longitude":121.47836148649233,"latitude":31.24651499183823,"height":0,"id":"id_1584606430456"},{"longitude":121.48308629476594,"latitude":31.234501754024112,"height":0,"id":"id_1584606433842"},{"longitude":121.47228366518459,"latitude":31.234865307087006,"height":0,"id":"id_1584606434928"},{"longitude":121.4690347825896,"latitude":31.225489776093042,"height":0,"id":"id_1584606436278"},{"longitude":121.47916947306527,"latitude":31.221588377944872,"height":0,"id":"id_1584606437496"},{"longitude":121.46429600057017,"latitude":31.23340386481349,"height":0,"id":"id_1584606439233"},{"longitude":121.49746766200198,"latitude":31.226335826086334,"height":0,"id":"id_1584606442216"},{"longitude":121.52732902182626,"latitude":31.22466011143482,"height":0,"id":"id_1584606445219"},{"longitude":121.53029041713175,"latitude":31.225875781714354,"height":0,"id":"id_1584606446521"}];
+            
+                // kvmap.KVMap.getGeojsonData("../static/json/buspoint.geojson").then((roadData) => {
+                    
+                // });
+                let layer = kvmapInstance.layerManager.addLayer("stc", "LightBeam", {
+                    style: {
+                        radius: 100, //缩放
+                        ratio: 50,
+                        bloom: false,
+                    }
+                });
+                layer.setData(dataArr);
+
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+
+
+                window.addAgain = function(){
+                    layer = kvmapInstance.layerManager.addLayer("stc", "LightBeam", {
+                    style: {
+                        radius: 10, //缩放
+                        ratio: 30,
+                        bloom: false,
+                    }
+                });
+                }
+            };
+
+
+
+            var fragmentShaderSource =
+            `uniform sampler2D colorTexture;
+            uniform sampler2D depthTexture;
+            uniform sampler2D testTexture;
+            varying vec2 v_textureCoordinates;
+            void main(void)
+            {
+                vec2 st = v_textureCoordinates;
+                vec4 oldColor = texture2D(testTexture, v_textureCoordinates);
+                gl_FragColor = oldColor;
+            }`;
+            map3d.kvmap.viewer.scene.postProcessStages.add(
+            new Cesium.PostProcessStage({
+                fragmentShader: fragmentShaderSource,
+                uniforms: {
+                    testTexture: () => {
+                        return Cesium.ExpandBySTC.bloomElse.blurYFbo._colorTextures[0];
+                    },
+                },
+            }));
+
+
+            
+
+
+        </script>
+    </body>
+</html>

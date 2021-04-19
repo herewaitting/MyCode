@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                var stc = kvmapInstance.initEarth(document.getElementById("app"), {
+                    cesiumViewerCfg: {},
+                    initMapOpts: {
+                        beautifyFilter: {
+                            blend: true,
+                            blendColor: "red",
+                            alpha: 0.5,
+                        },
+                        imageryProvider: "",
+                        initAnimation: {
+                            flyTo: false,
+                            earthRotate: false,
+                        },
+                        angleOfViewCfg: {
+                            lon: 121.60976973871132,
+                            lat: 31.109214738816334,
+                            height: 22160.604766729462,
+                            heading: 359.998126822114,
+                            pitch: -59.99968834636347,
+                        },
+                        tilesCfg: {
+                            // url:"https://lab.earthsdk.com/model/702aa950d03c11e99f7ddd77cbe22fea/tileset.json",
+                            url:"https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            height: 0,
+                        },
+                            dubuggerMode: true,
+                    },
+                });
+                function updateStyle(){
+                    layer.updateStyle( {
+                        type: "cube",
+                        style: {
+                            color: options.color,
+                            height: options.height,
+                            extrudedHeight: options.extrudedHeight,
+                            alpha: options.alpha,
+                            bloom: options.bloom
+                        },
+                    });
+                }
+
+                function Options(){
+                    this.color = "#ffffff";
+                    this.height = 0;
+                    this.extrudedHeight = 0;
+                    this.alpha = 50;
+                    this.bloom = false;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options, 'color').onFinishChange(function(value){
+                    options.color = value;
+                    updateStyle();
+                });
+                gui.add(options, 'bloom').onFinishChange(function(value){
+                    options.bloom = value;
+                    updateStyle();
+                });
+                gui.add(options, 'alpha').min(0).max(100).step(1).onChange(function(value){
+                    options.alpha = value;
+                    updateStyle();
+                });
+                gui.add(options, 'height').min(0.0).max(500).step(1).onFinishChange(function(value){
+                    options.height = value;
+                    updateStyle();
+                });
+                gui.add(options, 'extrudedHeight').min(0).max(1000).step(1).onFinishChange(function(value){
+                    options.extrudedHeight = value;
+                    updateStyle();
+                });
+
+                stc.then(function() {
+                    
+
+                    var layer = kvmapInstance.addLayer("Polygon", "layer9");
+                    layer.addEntityLayer( {
+                        type: "cube",
+                        data: [{
+                        id: "stcwall",
+                        points: [
+                        {
+                            lon:121.50843118073439,
+                            lat:31.236240694308645,
+                            height:0
+                        }
+
+                        ,
+                        {
+                            lon:121.4949638274033,
+                            lat:31.23268692936606,
+                            height:0
+                        }
+                        ,
+                        {
+                            lon:121.49075630220453,
+                            lat:31.237137939807795,
+                            height:0
+                        },
+                        {
+                            lon:121.48908169024442,
+                            lat:31.24119430424044,
+                            height:0
+                        },
+                        {
+                            lon:121.49380319963136,
+                            lat:31.245482565203346,
+                            height:0
+                        },
+                        {
+                            lon:121.50087726002816,
+                            lat:31.24796874409237,
+                            height:0
+                        },
+                        {
+                            lon:121.50843118073439,
+                            lat:31.236240694308645,
+                            height:0
+                        }
+                    ]
+                    }],
+                        // style: {
+                        //     color: "white",
+                        //     height: 0,
+                        //     extrudedHeight: 500000,
+                        //     alpha: 0.5,
+                        // },
+                    });
+
+                    window.layer = layer;
+                    setTimeout(function(){
+                        layer.entityLayer.located();
+                    },2000);
+                    
+                });
+            };
+        </script>
+    </body>
+</html>

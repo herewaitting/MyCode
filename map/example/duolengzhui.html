@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            function Options(){
+                this.speed = 1;
+                this.size = 10;
+                this.height = 15;
+                this.ratio = 2;
+                this.num = 6;
+                this.color = "#ff00ff";
+                this.frameColor = "#ff00ff";
+                this.alpha = 0.3;
+                this.floatHeight = 5;
+                this.brightness = 0;
+            }
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+
+                function updateStyle() {
+                    layer.updateStyle({
+                            speed :options.speed,
+                            size : options.size,
+                            frameColor: options.frameColor,
+                            height : options.height,
+                            ratio :options.ratio,
+                            num :options.num,
+                            color : options.color,
+                            alpha : options.alpha,
+                            floatHeight: options.floatHeight,
+                            brightness: options.brightness
+                        });
+                }
+
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options, "color").onChange(function(value){
+                    options.color = value;
+                    updateStyle()
+                });
+                gui.addColor(options, "frameColor").onChange(function(value){
+                    options.frameColor = value;
+                    updateStyle()
+                });
+                gui.add(options, 'speed').min(0).max(10).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle()
+                });
+                gui.add(options, 'size').min(0).max(10).step(1).onChange(function(value){
+                    options.size = value;
+                    updateStyle()
+                });
+                gui.add(options, 'height').min(0).max(100).step(1).onChange(function(value){
+                    options.height = value;
+                    updateStyle()
+                });
+                gui.add(options, 'alpha').min(0).max(1).step(0.01).onChange(function(value){
+                    options.alpha = value;
+                    updateStyle()
+                });
+                gui.add(options, 'ratio').min(0.1).max(200).step(0.2).onChange(function(value){
+                    options.ratio = value;
+                    updateStyle()
+                });
+                gui.add(options, 'num').min(3).max(30).step(1).onChange(function(value){
+                    options.num = value;
+                    updateStyle()
+                });
+                gui.add(options, 'floatHeight').min(3).max(30).step(1).onChange(function(value){
+                    options.floatHeight = value;
+                    updateStyle()
+                });
+                gui.add(options, 'brightness').min(0).max(100).step(1).onChange(function(value){
+                    options.brightness = value;
+                    updateStyle()
+                });
+                let dataArr = [{"longitude":121.50135971524665,"latitude":31.235522843354545,"height":599.43,"id":"id_1584606407602"},{"longitude":121.504114277695,"latitude":31.240445763776645,"height":514.84,"id":"id_1584606415647"},{"longitude":121.50344559750206,"latitude":31.236645160884255,"height":514.5,"id":"id_1584606417948"},{"longitude":121.5106176630394,"latitude":31.234325520250433,"height":199.4,"id":"id_1584606420182"},{"longitude":121.51304874674881,"latitude":31.231190052523566,"height":114.34,"id":"id_1584606422683"},{"longitude":121.51840788822524,"latitude":31.232090137907768,"height":124.33,"id":"id_1584606423651"},{"longitude":121.49360096305487,"latitude":31.25119797273698,"height":339.41,"id":"id_1584606427121"},{"longitude":121.4864978768977,"latitude":31.25036717543315,"height":209.41,"id":"id_1584606428190"},{"longitude":121.47922640885557,"latitude":31.24995555276136,"height":259.42,"id":"id_1584606429791"},{"longitude":121.47836148649233,"latitude":31.24651499183823,"height":144.45,"id":"id_1584606430456"},{"longitude":121.48308629476594,"latitude":31.234501754024112,"height":259.3,"id":"id_1584606433842"},{"longitude":121.47228366518459,"latitude":31.234865307087006,"height":264.3,"id":"id_1584606434928"},{"longitude":121.4690347825896,"latitude":31.225489776093042,"height":309.45,"id":"id_1584606436278"},{"longitude":121.47916947306527,"latitude":31.221588377944872,"height":139.5,"id":"id_1584606437496"},{"longitude":121.46429600057017,"latitude":31.23340386481349,"height":184.32,"id":"id_1584606439233"},{"longitude":121.49746766200198,"latitude":31.226335826086334,"height":134.33,"id":"id_1584606442216"},{"longitude":121.52732902182626,"latitude":31.22466011143482,"height":154.18,"id":"id_1584606445219"},{"longitude":121.53029041713175,"latitude":31.225875781714354,"height":229.17,"id":"id_1584606446521"}];
+                // dataArr = dataArr.map((item) => {
+                //     return {
+                //         lon: item.longitude,
+                //         lat: item.latitude,
+                //         height: item.height,
+                //         id: item.id
+                //     }
+                // });
+
+                let layer = kvmapInstance.layerManager.addLayer("stc", "MultiPyramid", {
+                    style: {
+                        size: 10, //缩放
+                        speed: 1,
+                        bloom: true,
+                        brightness: 1,
+                        num: 10,
+                    }
+                });
+
+                layer.setData(dataArr);
+
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+
+            [121.50135971524665,31.235522843354545,121.504114277695,31.240445763776645,121.50344559750206,31.236645160884255,121.5106176630394,31.234325520250433,121.51304874674881,31.231190052523566,121.51840788822524,31.232090137907768,121.49360096305487,31.25119797273698,121.4864978768977,31.25036717543315,121.47922640885557,31.24995555276136,121.47836148649233,31.24651499183823,121.48308629476594,31.234501754024112,121.47228366518459,31.234865307087006,121.4690347825896,31.225489776093042,121.47916947306527,31.221588377944872,121.46429600057017,31.23340386481349,121.49746766200198,31.226335826086334,121.52732902182626,31.22466011143482,121.53029041713175,31.225875781714354]           
+        </script>
+    </body>
+</html>

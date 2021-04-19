@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+            .cesium-performanceDisplay-defaultContainer {
+                display: block !important;
+            }
+            .cesium-viewer {
+                overflow: auto !important;
+            }
+            /* .cesium-widget {
+                width: 8188px !important;
+                height: 3068px !important;
+            } */
+            /* .cesium-widget {
+                width: 4094px !important;
+                height: 1534px !important;
+            } */
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            window.devicePixelRatio = 1.0;
+            Cesium.ExpandBySTC.bloomSizeScale = 1;
+            Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNjgwYzc1ZS0wNmVjLTRhYWItYmUyMy0yNDM2YWFjOTE1ZjciLCJpZCI6MzQ0NjEsImlhdCI6MTYwMDMzMDg3NH0.7QJwJRUkzLdkDU5B7TiZ-7Ib3quVbpuDDxqy0s9Wxi4";
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            function tjdgy() {
+                // Cesium.ExpandBySTC.lightObj.extendPointLightPositionWC = new Cesium.Cartesian3(-2779907.7941673086, 4685283.7404985465, 3306410.7135052555);
+                // Cesium.ExpandBySTC.lightObj.extendLightSwitch.y = true;
+                // Cesium.ExpandBySTC.lightObj.extendPointLightColor = new Cesium.Color(10,2,2);
+                // Cesium.ExpandBySTC.lightObj.extendPointLightDistance = 200;
+                kvmapInstance.lightManager.setLight("Point",{
+                    color: "rgb(255,255,255)",
+                    brightness: 500,
+                    enable: true,
+                    position: {
+                        // lon: 120.69321230175846,
+                        // lat: 31.424003282567366,
+                        // height: 4600
+                        lon: 120.68975294134306,
+                        lat: 31.313837869016783,
+                        height: 850, 
+                    },
+                    distance: 1500
+                });
+            }
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app",
+                    sceneCfg: {
+
+                    }
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+                window.viewer = kvmapInstance.viewer;
+
+                var layer = kvmapInstance.layerManager.addLayer("Polygon", "InvertedSceneLaker", {
+                    baseCfg: {
+                        mergeDraw: true,
+                    },
+                    style: {
+                        amplitude: 10,
+                        animationSpeed: 5,
+                        color: "rgba(98,141,174,1)",
+                        frequency: 100,
+                        mergeDraw: false,
+                        alpha: 1.0
+                    }
+                });
+                layer.setData("http://10.67.0.56:9091/static_stc/json/金鸡湖合并.geojson");
+                kvmapInstance.viewer.scene._terrainExaggeration = 1.0;
+                layer.viewer.scene.debugShowFramesPerSecond = true;
+
+                
+                tjdgy();
+
+                kvmapInstance.viewer.terrainProvider = Cesium.createWorldTerrain();
+                kvmapInstance.viewer.imageryProvider = new Cesium.WebMapTileServiceImageryProvider({
+        url: "http://t0.tianditu.com/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + "1a3004383669fbbd412a3b3f34f38f27",
+        layer: "tdtBasicLayer",
+        style: "default",
+        format: "image/jpeg",
+        tileMatrixSetID: "GoogleMapsCompatible",
+        minimumLevel: 0,
+        maximumLevel: 16,
+    })
+
+
+
+    let layertext =  kvmapInstance.layerManager.addLayer("stctext", "TextLabel", {
+                    style: {
+                        fontSize: 18,
+                        fillColor: "red",
+                        scale: 1,
+                        height: 0,
+                        showBackground: true,
+                        backgroundColor: "black",
+                        bgPX: 3,
+                        bgPY: 5,
+                        offsetX: 0,
+                        offsetY: 0,
+                        near: 0,
+                        far: 1000000000000,
+                        ratio: 0.5,
+                        fieldKey: "name"
+                    }
+                });
+                layertext.setData("http://10.67.0.56:9091/static_stc/json/HupoMingCheng.geojson");
+
+
+    viewer.scene.skyBox = new Cesium.SkyBox({
+          sources: {
+            positiveX: "../static_stc/SkyBox/westSun/posX.png",
+            negativeX: "../static_stc/SkyBox/westSun/negX.png",
+            positiveY: "../static_stc/SkyBox/westSun/posY.png",
+            negativeY: "../static_stc/SkyBox/westSun/negY.png",
+            positiveZ: "../static_stc/SkyBox/westSun/posZ.png",
+            negativeZ: "../static_stc/SkyBox/westSun/negZ.png",
+          },
+        });
+        viewer.scene.skyBox.nearGround = true;
+
+                var tilebm = kvmapInstance.layerManager.addLayer("Building", "WhiteTiles", {
+                    style: {
+                        // url: "https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                        // url: "https://10.68.8.20/kmap-server/sanyuansancun/tileset.json",
+                        // url: "http://10.67.0.56:8000/stc/tileset.json",
+                        url: "https://10.68.8.229:9181/kmap-server/baimo/suzhoustc/tileset.json",
+                        // url: "http://10.68.8.229:9180/kmap-server/baimo/suzhou/tileset.json",
+                        // url: "http://106.12.93.244/data/3dtiles/sztest/tileset.json",
+                        // url:"../static/tiles/tileset.json",
+                        style : "",
+                        maximumScreenSpaceError : 10,
+                        // mixColor  : "#ffffff",
+                        // baseColor: "#3a777f",
+                        baseColor  : "rgba(255,255,255,1.0)",
+                        mixColor: "rgba(90,110,222,1.0)",
+                        appearMove : false,
+                        // style : "interval_lines",
+                        height: 0,
+                        bloom: false,
+                        useColor: true,
+                        useGradient: true,
+                        ableCustomLight: true,
+                        mixNum: 0.4,
+                        luminanceAtZenith: 0.7,
+                        maximumMemoryUsage: 2048,
+                    }
+                });
+
+                function updateStyle(){
+                    layer.updateStyle({
+                        baseWaterColor: options.baseWaterColor,
+                        frequency: options.frequency,
+                        animationSpeed: options.animationSpeed,
+                        amplitude: options.amplitude,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'polygon_f0_plg0_p0'",
+                                style: {
+                                    baseWaterColor: "rgba(0,255,0,1)"
+                                }
+                            }
+                        ]
+                    });
+                }
+
+                function Options(){
+                    this.baseWaterColor = "#0000ff";
+                    this.animationSpeed = 5;
+                    this.frequency = 125;
+                    this.efinition = 50;
+                    // this.brightness = 1;
+                    this.amplitude = 1;
+                }
+                // var options = new Options();
+                // var gui = new dat.GUI();
+                // gui.addColor(options, "baseWaterColor").onFinishChange((val) => {
+                //     options.baseWaterColor = val;
+                //     updateStyle();
+                // });
+                // gui.add(options,"animationSpeed").min(0.1).max(20.0).step(0.1).onChange(function(value){
+                //     options.animationSpeed = value;
+                //     updateStyle();
+                // });
+                // gui.add(options,"amplitude").min(0.1).max(100).step(0.1).onChange(function(value){
+                //     options.amplitude = value;
+                //     updateStyle();
+                // });
+                // // gui.add(options,"brightness").min(0.1).max(10).step(0.1).onChange(function(value){
+                // //     options.brightness = value;
+                // //     updateStyle();
+                // // });
+
+                // gui.add(options,"frequency").min(1).max(1000).step(0.1).onChange(function(value){
+                //     options.frequency = value;
+                //     updateStyle();
+                // });
+
+                window.layer = layer;
+                // setTimeout(function(){
+                //     layer.entityLayer.located();
+                // },2000);
+            };
+            window.testDY = function () {
+                var fragmentShaderSource =
+                    'uniform sampler2D colorTexture; \n' +
+                    'uniform sampler2D daoyingTexture; \n' +
+                    'varying vec2 v_textureCoordinates; \n' +
+                    'void main(void) \n' +
+                    '{ \n' +
+                    '    vec4 daoying = texture2D(daoyingTexture, v_textureCoordinates); \n' +
+                    '    gl_FragColor = daoying; \n' +
+                    '} \n';
+                viewer.scene.postProcessStages.add(new Cesium.PostProcessStage({
+                    fragmentShader : fragmentShaderSource,
+                    uniforms:{
+                        daoyingTexture:function(){
+                            return Cesium.ExpandBySTC.mirror.MirrorFrameBuffer&&Cesium.ExpandBySTC.mirror.MirrorFrameBuffer._colorTextures[0] || viewer.scene.context.defaultTexture
+                        }
+                    }
+                }));
+            }
+
+            window.testKJC = function(num) {
+                layer.viewer.scene.postProcessStages.fxaa._textureScale = num || 1.0;
+                layer.viewer.scene.postProcessStages.fxaa.enabled = true;
+            }
+
+
+        </script>
+    </body>
+</html>

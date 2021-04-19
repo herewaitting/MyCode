@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <img src="../static_stc/img/loading.svg" alt="" id="stcsvg">
+        <script>
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+
+                const CesiumIonDefaultToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNjgwYzc1ZS0wNmVjLTRhYWItYmUyMy0yNDM2YWFjOTE1ZjciLCJpZCI6MzQ0NjEsImlhdCI6MTYwMDMzMDg3NH0.7QJwJRUkzLdkDU5B7TiZ-7Ib3quVbpuDDxqy0s9Wxi4";
+                Cesium.Ion.defaultAccessToken = CesiumIonDefaultToken;
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+
+
+
+                window.tilebm = kvmapInstance.layerManager.addLayer("Building", "WhiteTiles", {
+                    style: {
+                            // url: "https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            url: "http://jihei-test.ljkjkf.com/3dtiles/os/tileset.json",
+                            // url: "http://106.12.93.244/data/3dtiles/sztest/tileset.json",
+                            // url:"../static/tiles/tileset.json",
+                            style : "interval_lines",
+                            maximumScreenSpaceError : 10,
+                            baseColor : "#3a777f",
+                            appearMove : true,
+                            height: 0,
+                            bloom: false
+                        }
+                });
+    
+                
+
+                // kvmapInstance.viewer.terrainProvider = new Cesium.CesiumTerrainProvider({
+                //     url: "http://10.67.0.133:8000/dem/",
+                // });
+
+                // kvmapInstance.sceneControl.terrainClip({
+                //     area: "http://10.67.0.56:9091/static/geojson/szxzbj.geojson",
+                // });
+                
+                
+                // let layer = kvmapInstance.layerManager.addLayer("stc", "Tailor", {
+                //     style: {
+                //     }
+                // });
+                // layer.setData("http://10.67.0.56:9091/static/geojson/szxzbj.json");
+
+                // let area = [
+                //         [121.4666204098275,31.246733299984307],
+                //         [121.46580992659345, 31.24940089716016],
+                //         [121.48425988502504,31.260390332151015],
+                //         [121.48799470411957,31.259332138113137],
+                //         [121.4874121613206, 31.255493480903436],
+                //         [121.47897032707702, 31.250475123289633]
+                //     ];
+
+                    let area = [
+                        [127.10329023382752,45.569919564441705],
+                        [127.10395050021765, 45.57090103404197],
+                        [127.10540751321052,45.57047752530697],
+                        [127.10476164493957,45.56941120726396]
+                    ];
+
+                // window.layer = kvmapInstance.sceneControl.bright3dTiles({
+                //     // area: "http://10.67.0.56:9091/static_stc/json/shanghai.json",
+                //     area: area,
+                //     // area: "http://10.67.0.56:9091/static_stc/json/szszsz.geojson"
+                // });
+
+                // const googleProvider = new Cesium.UrlTemplateImageryProvider({
+                //     url : "https://10.67.24.180:8001/%E8%8B%8F%E5%B7%9E%E5%9C%B0%E5%9B%BE%E5%8E%9F%E8%AF%9D%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E/%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%8E%9F%E5%A7%8B%E9%A3%8E%E5%A2%A8%E5%8D%A1%E6%89%98%E5%8E%9F%E5%A7%8B%E7%93%A6%E7%89%87/{z}/{x}/{y}.png",
+                //     maximumLevel: 18,
+                //     hasAlphaChannel: false,
+                // });
+                // kvmapInstance.viewer.imageryLayers.addImageryProvider(googleProvider);
+
+
+                const center = [];
+                const cars = [];
+                let totalLon = 0;
+                let totalLat = 0
+                area.forEach((pot) => {
+                    totalLon += pot[0];
+                    totalLat += pot[1];
+                    cars.push(Cesium.Cartesian3.fromDegrees(pot[0], pot[1]));
+                });
+                center[0] = totalLon / area.length;
+                center[1] = totalLat / area.length;
+                const ccc = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+
+                               
+                
+
+                window.tilebm = tilebm;
+
+                setTimeout(function(){
+                    kvmapInstance.cameraControl.intellectLocated({
+                        center: ccc,
+                        points: cars,
+                        callback: function(){
+                            console.log(666666);
+                        }
+                    });
+                },2000);
+            };
+        </script>
+    </body>
+</html>

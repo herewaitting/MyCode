@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+                /* width: 1000px;
+                height: 500px; */
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <img src="../static_stc/img/zhongyuan.png" alt="" id="webp">
+        <img id="textBg" src="../static/img/labelBg.png" alt="">
+        <div id="text1" style="width:100px;height:50px;background-color: rgba(0.3,0.3,0.3,0.0);color:blue;">
+            <p>我是文本---111</p>
+        </div>
+        <div id="text2" style="width:100px;height:50px;background-color: rgba(0.3,0.3,0.3,0.0);color:red;">
+            <p>我是文本---222</p>
+        </div>
+        <div id="text3" style="width:100px;height:50px;background-color: rgba(0.3,0.3,0.3,0.0);color:green;">
+            <p>我是文本---333</p>
+        </div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+
+                window.viewer = kvmapInstance.viewer;
+                kvmapInstance.layerManager.ableAvoid = true;
+                    
+
+                function updateStyle(){
+                    layer.updateStyle({
+                        fontSize: options.fontSize,
+                        fontType: options.fontType,
+                        fillColor: options.fillColor,
+                        scale: options.scale,
+                        height: options.height,
+                        showBackground: options.showBackground,
+                        backgroundColor: options.backgroundColor,
+                        bgPX: options.bgPX,
+                        bgPY: options.bgPY,
+                        offsetX: options.offsetX,
+                        offsetY: options.offsetY,
+                    });
+                }
+
+                function Options(){
+                    this.fontSize = 18;
+                    this.fontType = "";
+                    this.fillColor = "red";
+                    this.scale = 1;
+                    this.height = 0;
+                    this.showBackground = false;
+                    this.backgroundColor = "black";
+                    this.bgPX = 3;
+                    this.bgPY = 5;
+                    this.offsetX = 0;
+                    this.offsetY = 0;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                // gui.addColor(options,"color").onFinishChange(function(value){
+                //     options.color = value;
+                //     updateStyle();
+                // });
+                gui.add(options,"fontSize").min(10).max(30).step(1).onChange(function(value){
+                    options.fontSize = value;
+                    updateStyle();
+                });
+                gui.add(options,"fontType").onChange(function(value){
+                    options.fontType = value;
+                    updateStyle();
+                });
+                gui.add(options,"fillColor").onChange(function(value){
+                    options.fillColor = value;
+                    updateStyle();
+                });
+                gui.add(options,"scale").min(0.1).max(5).step(0.1).onChange(function(value){
+                    options.scale = value;
+                    updateStyle();
+                });
+                gui.add(options,"height").min(0).max(300).step(1).onChange(function(value){
+                    options.height = value;
+                    updateStyle();
+                });
+                gui.add(options,"showBackground").onChange(function(value){
+                    options.showBackground = value;
+                    updateStyle();
+                });
+                gui.add(options,"backgroundColor").onChange(function(value){
+                    options.backgroundColor = value;
+                    updateStyle();
+                });
+                gui.add(options,"bgPX").min(0).max(10).step(1).onChange(function(value){
+                    options.bgPX = value;
+                    updateStyle();
+                });
+                gui.add(options,"bgPY").min(0).max(10).step(1).onChange(function(value){
+                    options.bgPY = value;
+                    updateStyle();
+                });
+                gui.add(options,"offsetX").min(-100).max(100).step(1).onChange(function(value){
+                    options.offsetX = value;
+                    updateStyle();
+                });
+                gui.add(options,"offsetY").min(-100).max(100).step(1).onChange(function(value){
+                    options.offsetY = value;
+                    updateStyle();
+                });
+
+
+                var b64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANMAAAA7CAYAAADhEL82AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQyIDc5LjE2MDkyNCwgMjAxNy8wNy8xMy0wMTowNjozOSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoyOUEzQzUwMTE3NEUxMUVCQkM0QkI0MThDQTYxMTIzOCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoyOUEzQzUwMjE3NEUxMUVCQkM0QkI0MThDQTYxMTIzOCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjI5QTNDNEZGMTc0RTExRUJCQzRCQjQxOENBNjExMjM4IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjI5QTNDNTAwMTc0RTExRUJCQzRCQjQxOENBNjExMjM4Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+JbU6swAACLlJREFUeNrsnQtwVNUZ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"
+
+                image = new Image();
+
+                // image.onload = function() {
+                //     Promise.all([
+                //         createImageBitmap(this, 0, 0, 211, 59),
+                //     ]).then(function(sprites) {
+                //         console.log(sprites);
+                //         let layer =  kvmapInstance.layerManager.addLayer("stc", "CustomTextLabel", {
+                //             style: {
+                //                 bgImg: sprites[0],
+                //                 size: 16,
+                //                 paddingLeft: 10,
+                //                 paddingTop: 5,
+                //                 width: 10000,
+                //                 height: 10000,
+                //                 color: "#ffffff",
+                //                 near: 10000,
+                //                 far: 100000,
+                //                 scale: 1,
+                //                 ratio: 0.2,
+                //                 distanceDisplay: false,
+                //             }
+                //         });
+
+                //         var textData = [];
+
+                //         const textArr = ["任意文本", "abcdefghijklmn", "1315", "136", "任意abc456", "吴中区", "吴江区", "工业园区", "张家港市", "昆山市"];
+
+                //         for(var i=0;i<1000;i++){
+                //             textData.push({
+                //                 longitude: 121 + (Math.random() - 0.5) * 10,
+                //                 latitude: 31 + (Math.random() - 0.5) * 10,
+                //                 height: 500 + (Math.random() - 0.5) * 100,
+                //                 text: textArr[Math.floor(Math.random() * 10)],
+                //                 id: "stc" + Math.random() + String(new Date().getTime()).slice(-4),
+                //             });
+                //         }
+
+
+                //         layer.setData(textData);
+                //     });
+                // }
+
+                
+
+                var textData = [];
+                window.textData = textData;
+
+                const textArr = ["任意文本", "abcdefghijklmn", "1315", "136", "任意abc456", "吴中区", "吴江区", "工业园区", "张家港市", "昆山市"];
+
+                for(var i=0;i<50000;i++){
+                    textData.push({
+                        longitude: 121 + (Math.random() - 0.5) * 10,
+                        latitude: 31 + (Math.random() - 0.5) * 10,
+                        height: 0,
+                        text: textArr[Math.floor(Math.random() * 10)],
+                        id: "stc" + (Math.random() - 0.5) * 100,
+                    });
+                }
+
+                console.log(textData.slice(0,10000));
+
+                let layer =  kvmapInstance.layerManager.addLayer("stc", "CustomTextLabel", {
+                    baseCfg: {
+                        visible: true,
+                        mergeDraw: false,
+                    },
+                    style: {
+                        width: 2000,
+                        height: 2000,
+                        billWidth: 0,
+                        color: "#ff0000",
+                        size: 20,
+                        imgUrl: "../../../../static_stc/img/lbxx.jpg",
+                        font: "微软雅黑",
+                        paddingTop: 12,
+                        alpha: 1,
+                        bloom: false,
+                        brightness: 1,
+                        near: 100,
+                        far: 50000,
+                        ratio: 0.1,
+                        scale: 1,
+                        distanceDisplay: false,
+                        condition: [],
+                        northOffset: 0,
+                        eastOffset: 0,
+                        heightOffset: 0,
+                        fixedWidth: 180,
+                        fixedHeight: 40,
+                        bold: false,
+                        ableAnimate: true,
+                    },
+                    hooks: {
+                        endInit: function() {
+                            console.log(this);
+                            this.setData(textData.slice(0,5000));
+                        }
+                    }
+                });
+
+                window.updateData = function() {
+                    layer.updateData(textData.slice(5001,6000));
+                }
+
+                window.test = function() {
+                    setInterval(function(){
+                        layer.vt = layer.v2tTool.getTexture(layer.viewer);
+                    });
+                }
+
+
+
+                // let layer1 =  kvmapInstance.layerManager.addLayer("stc11", "CustomTextLabel", {
+                //     baseCfg: {
+                //         visible: true,
+                //         mergeDraw: true,
+                //     },
+                //     style: {
+                //         width: 2000,
+                //         height: 2000,
+                //         billWidth: 0,
+                //         color: "#ff0000",
+                //         size: 20,
+                //         imgUrl: "../../../../static/img/sedai.png",
+                //         font: "微软雅黑",
+                //         paddingTop: 12,
+                //         alpha: 1,
+                //         bloom: false,
+                //         brightness: 1,
+                //         near: 100,
+                //         far: 50000,
+                //         ratio: 0.1,
+                //         scale: 1,
+                //         distanceDisplay: false,
+                //         condition: [],
+                //         northOffset: 0,
+                //         eastOffset: 0,
+                //         heightOffset: 0,
+                //         fixedWidth: 180,
+                //         fixedHeight: 40,
+                //         bold: false,
+                //         verticalOrigin: "BOTTOM", // 垂直基准线
+                //         horizontalOrigin: "CENTER", // 水平基准线
+                //     },
+                //     hooks: {
+                //         endInit: function() {
+                //             console.log(this);
+                //             this.setData(textData.slice(0,5000));
+                //         }
+                //     }
+                // });
+
+
+                var mouseClickHandler = new Cesium.ScreenSpaceEventHandler(
+                    viewer.scene.canvas,
+                );
+                mouseClickHandler.setInputAction((
+                    movement
+                ) => {
+                    console.log("拾取");
+                    const pickedFeature = viewer.scene.pick(movement.position);
+                    console.log(pickedFeature);
+                },
+                Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+                // setInterval(() => {
+                //     if (layer1) {
+                //         const context = layer1.viewer.scene.context;
+                //         if (window.bgtext) {
+                //             window.bgtext.destroy();
+                //             window.bgtext = null;
+                //         }
+                //         window.bgtext = new Cesium.Texture({
+                //             context: context,
+                //             source: document.getElementById("webp"),
+                //             pixelFormat: Cesium.PixelFormat.RGBA,
+                //             pixelDatatype: Cesium.PixelDatatype.FLOAT,
+                //         });
+                //     }
+                // }, 100);
+                
+
+
+                image.src = b64;
+                window.layer = layer;
+                // setTimeout(function(){
+                    
+                //     layer.located();
+                // },2000);
+            };
+        </script>
+    </body>
+</html>

@@ -1,0 +1,113 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: STC
+ * @Date: 2020-05-11 16:31:13
+ * @LastEditors: STC
+ * @LastEditTime: 2020-05-28 10:24:47
+ -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvmap.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+
+            window.onload = () => {
+                if (!window.kvmap) {
+                    return;
+                }
+                const kvmapInstance = new kvmap.KVMap();
+                window.kvmapInstance = kvmapInstance;
+                var stc = kvmapInstance.initEarth(document.getElementById("app"), {
+                    cesiumViewerCfg: {},
+                    initMapOpts: {
+                        beautifyFilter: {
+                            blend: true,
+                            blendColor: "red",
+                            alpha: 0.5,
+                        },
+                        imageryProvider:  {
+                            type: "UrlTemplate",
+                            server: "https://10.67.24.188:8081/ditu/suzhou",
+                            minimumLevel: 0,
+                            maximumLevel: 16,
+                            rectangle: {
+                                west: "180",
+                                south: "90",
+                                east: "-180",
+                                north: "-90",
+                            },
+                        },
+                        initAnimation: {
+                            flyTo: false,
+                            earthRotate: false,
+                        },
+                        angleOfViewCfg: {
+                            heading: 359.9981268280014,
+                            height: 24658.44140032781,
+                            lat: 31.16248434178859,
+                            lon: 120.68302116414648,
+                            pitch: -59.999584374517305,
+                            roll: 359.99999999320187,
+                        },
+                        tilesCfg: {
+                            // url:"https://lab.earthsdk.com/model/702aa950d03c11e99f7ddd77cbe22fea/tileset.json",
+                            url:"https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            height: 0,
+                        },
+                            dubuggerMode: true,
+                    },
+                });
+
+                function Options(){
+                    this.brightness = 1;
+                    this.contrast = 1;
+                    this.gamma = 1;
+                    this.hue = 0;
+                    this.saturation = 1;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                const baseMap = kvmapInstance.baseMap;
+                gui.add(options, "brightness").min(0).max(10).step(0.01).onChange(function(value) {
+                    baseMap.brightness =value;
+                });
+                gui.add(options, "contrast").min(0).max(10).step(0.01).onChange(function(value) {
+                    baseMap.contrast =value;
+                });
+                gui.add(options, "gamma").min(0).max(2).step(0.01).onChange(function(value) {
+                    baseMap.gamma =value;
+                });
+                gui.add(options, "hue").min(0).max(1).step(0.01).onChange(function(value) {
+                    baseMap.hue =value;
+                });
+                gui.add(options, "saturation").min(0).max(10).step(0.01).onChange(function(value) {
+                    baseMap.saturation =value;
+                });
+                    
+            };
+        </script>
+    </body>
+</html>

@@ -1,0 +1,132 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-03-18 08:47:20
+ * @LastEditTime: 2021-01-27 15:27:00
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \kvmap\example\style3dtiles.html
+ -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                var tilebm = kvmapInstance.layerManager.addLayer("Building", "WhiteTiles", {
+                    style: {
+                            url: "https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            // url: "http://106.12.93.244/data/3dtiles/sztest/tileset.json",
+                            // url:"../static/tiles/tileset.json",
+                            style : "interval_lines",
+                            maximumScreenSpaceError : 0,
+                            baseColor : "#3a777f",
+                            appearMove : true,
+                            height: 0,
+                            bloom: true
+                        }
+                });
+                function tilesOpts() {
+                    this.url = "https://10.67.24.188:8081/3dtiles/shanghai/tileset.json";
+                    // this.url = "../static/tiles/tileset.json";
+                    this.style = "interval_lines";
+                    this.maximumScreenSpaceError = 1;
+                    this.baseColor = "#3a777f";
+                    this.appearMove = true;
+                    this.height = 0;
+                    this.bloom = true;
+                }
+                var tilestyle = new tilesOpts();
+                var tileGui = new dat.GUI();
+                function updateTileStyle(){
+                    tilebm.updateStyle({
+                            url: tilestyle.url,
+                            style: tilestyle.style,
+                            maximumScreenSpaceError: tilestyle.maximumScreenSpaceError,
+                            baseColor: tilestyle.baseColor, 
+                            appearMove: tilestyle.appearMove, 
+                            height: tilestyle.height,
+                            bloom: tilestyle.bloom,
+                        });
+                }
+                tileGui.add(tilestyle, "url").onFinishChange(function(value){
+                    tilestyle.url = value;
+                    updateTileStyle();
+                });
+                tileGui.add(tilestyle, "style").onFinishChange(function(value){
+                    tilestyle.style = value;
+                    updateTileStyle();
+                });
+                tileGui.add(tilestyle, "appearMove").onFinishChange(function(value){
+                    tilestyle.appearMove = value;
+                    updateTileStyle();
+                });
+                tileGui.add(tilestyle, "maximumScreenSpaceError").min(0).max(200).step(1).onChange(function(value){
+                    tilestyle.maximumScreenSpaceError = value;
+                    updateTileStyle();
+                });
+                tileGui.add(tilestyle, "height").min(0).max(200).step(1).onChange(function(value){
+                    tilestyle.height = value;
+                    updateTileStyle();
+                });
+                tileGui.addColor(tilestyle, "baseColor").onChange(function(value){
+                    tilestyle.baseColor = value;
+                    updateTileStyle();
+                });
+                tileGui.add(tilestyle, "bloom").onChange(function(value){
+                    tilestyle.bloom = value;
+                    updateTileStyle();
+                });
+
+                
+                let layer = kvmapInstance.layerManager.addLayer("stc", "SweepLight", {
+                    style: {
+                        color: "#00fff0",
+                        speed: 2, //动画速度
+                        radius: 20000,
+                    }
+                });
+                layer.setData([
+                    {
+                        lon: 121.503177,
+                        lat: 31.244389,
+                    },
+                ]);
+
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

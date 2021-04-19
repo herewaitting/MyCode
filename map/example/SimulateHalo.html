@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <img src="../static_stc/img/loading.svg" alt="" id="stcsvg">
+        <script>
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+                function Options(){
+                    this.color = "#ffff00";
+                    this.radius = 200;
+                    this.brightness = 1;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                function updateStyle() {
+                    layer.updateStyle({
+                        color: options.color, //图片
+                        radius: options.radius, //缩放
+                        brightness: options.brightness,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'point_f1'",
+                                style: {
+                                    color: "red"
+                                }
+                            }
+                        ]
+                    });
+                }
+                gui.addColor(options, "color").onChange(function(value){
+                    options.color =value;
+                    updateStyle();
+                });
+                gui.add(options, "brightness").min(0.1).max(5).step(0.2).onChange(function(value) {
+                    options.scale =value;
+                    updateStyle();
+                });
+                gui.add(options, "radius").min(0.1).max(500).step(5).onChange(function(value) {
+                    options.radius =value;
+                    updateStyle();
+                });
+                let layer = kvmapInstance.layerManager.addLayer("stc", "SimulateHalo", {
+                    style: {
+                        id: "stcbb",
+                        radius: 200,
+                        color: 'yellow',
+                        brightness: 1,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'point_f1'",
+                                style: {
+                                    color: "blue"
+                                }
+                            }
+                        ]
+                    }
+                });
+                // layer.setStyle();
+                layer.setData("http://10.67.0.56:9091/static/geojson/point.json");
+                // layer.addEntityLayer( {
+                //     type: "billboard",
+                //     // data: roadData.points,
+                //     data:"http://10.67.0.56:9091/static/geojson/point.json",
+                //     style: {
+                //         id: "stcbb",
+                //         scale: 1, //缩放
+                //         bloom: true,
+                //         height: 100,
+                //         condition: [
+                //             {
+                //                 condition: "true",
+                //                 style: {
+                //                     scale: 5,
+                //                     imgUrl: "../static_stc/mark/marker.png"
+                //                 }
+                //             }
+                //         ]
+                //     },
+                // });
+
+
+                let layer2 = kvmapInstance.layerManager.addLayer("stc2", "AlphaCylinder", {
+                    style: {
+                        id: "stcbb",
+                        scale: 1, //缩放
+                        bloom: true,
+                        height: 200,
+                        brightness: 10,
+                        radius: 50,
+                        // layerShow: false,
+                        layerShow: true,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'point_f1'",
+                                style: {
+                                    scale: 10,
+                                    imgUrl: "../static_stc/mark/marker.png"
+                                }
+                            }
+                        ]
+                    }
+                });
+                // layer.setStyle();
+                layer2.setData("http://10.67.0.56:9091/static/geojson/point.json");
+
+
+                let layer3 = kvmapInstance.layerManager.addLayer("stc3", "AngleRing", {
+                    style: {
+                        id: "stcbb",
+                        radius: 50,
+                        topRatio: 1.5,
+                        brightness: 1,
+                        color: "red",
+                        bloom: true,
+                        mergeDraw: false,
+                        ratio: 2,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'point_f1'",
+                                style: {
+                                    ratio: 10,
+                                }
+                            }
+                        ]
+                    }
+                });
+                // layer.setStyle();
+                layer3.setData("http://10.67.0.56:9091/static/geojson/point.json");
+
+                window.layer = layer;
+
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app">
+            <input type="button" value="上帝视角" id="god">
+            <input type="button" value="第一视角" id="first">
+        </div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                document.getElementById("god").addEventListener("click",function(){
+                    layer.entityLayer.followTarget('stc2', 'god');
+                    // layer.entityLayer.fllowTargetModelId = 'stc';
+                    // layer.entityLayer.fllowViewType = 'god';
+                });
+                document.getElementById("first").addEventListener("click",function(){
+                    layer.entityLayer.followTarget('stc2', 'first');
+                    // layer.entityLayer.fllowTargetModelId = 'stc';
+                    // layer.entityLayer.fllowViewType = 'first';
+                });
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+                
+                function updateStyle(){
+                    layer.updateStyle( {
+                        type: "pathAnimation",
+                        style: {
+                            model: options.model,
+                            scale: options.scale,
+                            pathWidth: options.pathWidth, 
+                            pathColor: options.pathColor, 
+                            speed: options.speed, 
+                        },
+                    });
+                }
+                function Options(){
+                    this.model = "";
+                    this.scale = 2;
+                    this.speed = 1; 
+                    this.pathWidth = 1;
+                    this.pathColor = "#ff0000";
+                    this.model = "../static/gltf/CesiumMilkTruck.glb";
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.add(options, 'model').onFinishChange(function(value){
+                    options.model = value;
+                    updateStyle();
+                });
+                gui.addColor(options,"pathColor").onChange(function(val){
+                    options.pathColor = val;
+                    updateStyle();
+                });
+                gui.add(options, 'scale').min(0).max(100).step(1).onChange(function(value){
+                    options.scale = value;
+                    updateStyle();
+                });
+                gui.add(options, 'pathWidth').min(0).max(10).step(1).onChange(function(value){
+                    options.pathWidth = value;
+                    updateStyle();
+                });
+                gui.add(options, 'speed').min(0).max(10).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+                let pathMoveData = [
+                        {   id:'stc1',
+                            lon: 121.72350254875654 + Math.random() * 0.001,
+                            lat: 31.219699961478917 + Math.random() * 0.001,
+                            height:0,
+                            time:1583730819354
+                        },
+                        {   id:'stc1',
+                            lon: 121.72350254875654 + Math.random() * 0.001,
+                            lat: 31.219699961478917 + Math.random() * 0.001,
+                            height:0,
+                            time:1583730902354
+                        },
+                        {   id:'stc1',
+                            lon: 121.72350254875654 + Math.random() * 0.001,
+                            lat: 31.219699961478917 + Math.random() * 0.001,
+                            height:0,
+                            time:1583730906354
+                        },
+                        {   id:'stc2',
+                            lon: 121.72550254875654 + Math.random() * 0.001,
+                            lat: 31.226927649720218 + Math.random() * 0.001,
+                            time:1583730816354,
+                            height:0,
+                        },
+                        {   id:'stc2',
+                            lon: 121.72550254875654 + Math.random() * 0.001,
+                            lat: 31.226927649720218 + Math.random() * 0.001,
+                            time:1583730818354,
+                            height:0,
+                        },
+                        {   id:'stc2',
+                            lon: 121.72550254875654 + Math.random() * 0.001,
+                            lat: 31.226927649720218 + Math.random() * 0.001,
+                            time:1583730822354,
+                            height:0,
+                        }
+                    ];
+
+
+                    window.stcreal = kvmapInstance.layerManager.addLayer("realLine", "ColorLine", {
+                        style: {
+                            lineWidth: 6,
+                            alpha: 0.5,
+                            speed: 2, // 流动速度
+                            bloom: true, // 是否泛光
+                            baseColor: '#7514ff', // 线基础颜色,
+                            floodColor: '#defc00', // 流动颜色
+                            mergeDraw: false,
+                            groundLine: true,
+                            groundLine: true,
+                        }
+                    });
+
+                    window.layer = kvmapInstance.layerManager.addLayer("stc", "ModelPoint", {
+                        baseCfg: {
+                            mergeDraw: false,
+                        },
+                        style: {
+                            scale: 100,
+                            history: true,
+                            delayTime: 5,
+                            relationTemplate: ["realLine"],
+                        }
+                    });
+
+                    layer.setData(pathMoveData);
+
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.trackedPoint = {
+                        id: "point_f0",
+                        type: "first"
+                    }
+                },2000);
+            };
+        </script>
+    </body>
+</html>

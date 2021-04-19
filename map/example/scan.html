@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+
+
+                //ScanEllipse
+                function updateStyle(){
+                    layer.updateStyle({
+                            color: options.color,
+                            speed: options.speed, //动画速度
+                            radius: options.radius,
+                            imgUrl: options.imgUrl,
+                            brightness: options.brightness,
+                            bloom: options.bloom
+                            // condition: [
+                            //     {
+                            //         condition: "{{id}} == 'stc1'",
+                            //         style: {
+                            //             color: "blue",
+                            //         }
+                            //     }
+                            // ]
+                        });
+                }
+
+                function Options(){
+                    this.color = "#ff0000";
+                    this.speed = 5;
+                    this.radius = 200;
+                    this.imgUrl = "";
+                    this.brightness = 1;
+                    this.bloom = false;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                gui.addColor(options, "color").onChange((val) => {
+                    options.color = val;
+                    updateStyle();
+                });
+                gui.add(options, "imgUrl").onFinishChange((val) => {
+                    options.imgUrl = val;
+                    updateStyle();
+                });
+                gui.add(options,"bloom").onChange(function(value){
+                    options.bloom = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"speed").min(1).max(20).step(1).onChange(function(value){
+                    options.speed = value;
+                    updateStyle();
+                });
+
+                gui.add(options,"radius").min(100).max(1000).step(100).onFinishChange(function(value){
+                    options.radius = value;
+                    updateStyle();
+                });
+                gui.add(options,"brightness").min(0).max(500).step(1).onChange(function(value){
+                        options.brightness = value;
+                        updateStyle();
+                    });
+
+                // let layer = kvmapInstance.layerManager.addLayer("Point", "RadarScan", {
+                //     style: {
+                //             color: "red",
+                //             speed: 3, //动画速度
+                //             radius: 3000,
+                //             // condition: [
+                //             //     {
+                //             //         condition: "{{id}} == 'stc1'",
+                //             //         style: {
+                //             //             color: "yellow",
+                //             //         }
+                //             //     }
+                //             // ]
+                //         }
+                // });
+                // layer.setData("http://10.67.0.56:9091/static_stc/json/szgk.json");
+
+
+                let layer = kvmapInstance.layerManager.addLayer("stc", "SimulateHalo", {
+                    style: {
+                        id: "stcbb",
+                        radius: 6000,
+                        color: 'yellow',
+                        brightness: 1,
+                        // condition: [
+                        //     {
+                        //         condition: "{{id}} == 'point_f1'",
+                        //         style: {
+                        //             color: "blue"
+                        //         }
+                        //     }
+                        // ]
+                    }
+                });
+                // layer.setStyle();
+                layer.setData("http://10.67.0.56:9091/static/geojson/point.json");
+
+
+                let layer2 = kvmapInstance.layerManager.addLayer("stc2", "ColorPoint", {
+                        style: {
+                            color: "white",
+                            pixelSize: 5,
+                            // condition: [
+                            //     {
+                            //         condition: "{{id}} == 'point_f1'",
+                            //         style: {
+                            //             color: "blue",
+                            //             pixelSize: 20,
+                            //         }
+                            //     }
+                            // ]
+                        }
+                    });
+                    // layer.setData("http://10.67.0.56:9091/static/geojson/point.json");
+                    layer2.setData("http://10.67.0.56:9091/static/geojson/point.json");
+
+                
+
+
+
+                // layer.setData([
+                //     {
+                //         id: "stc1",
+                //         lon: 120.617475,
+                //         lat: 31.335879,
+                //     },
+                //     // {
+                //     //     id: "stc2",
+                //     //     lon: 121.52050254875654,
+                //     //     lat: 31.224927649720218,
+                //     // },
+                // ]);
+                const googleProvider = new Cesium.WebMapTileServiceImageryProvider({
+                    url: "http://t0.tianditu.com/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + "1a3004383669fbbd412a3b3f34f38f27",
+                    layer: "tdtBasicLayer",
+                    style: "default",
+                    format: "image/jpeg",
+                    tileMatrixSetID: "GoogleMapsCompatible",
+                    show: false,
+                    minimumLevel: 0,
+                    maximumLevel: 16,
+                });
+                kvmapInstance.viewer.imageryLayers.addImageryProvider(googleProvider);
+
+
+
+
+                var ellipsoid = new Cesium.EllipsoidGeometry({
+                    radii : new Cesium.Cartesian3(3000, 3000,3000),
+                    innerRadii: new Cesium.Cartesian3(0.1, 0.1, 0.1),
+                    minimumClock: Cesium.Math.toRadians(0),
+                    maximumClock: Cesium.Math.toRadians(60),
+                    minimumCone: Cesium.Math.toRadians(90),
+                    maximumCone: Cesium.Math.toRadians(95),
+                });
+                // var geometry = EllipsoidGeometry.createGeometry(ellipsoid);
+                var instance = new Cesium.GeometryInstance({
+                    geometry : ellipsoid,
+                });
+                var mat4 = Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(120.48941970596178,30.84980508826556, 0.0));
+                var hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(-90), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
+                var mat3 = Cesium.Matrix3.fromHeadingPitchRoll(hpr, new Cesium.Matrix3());
+                Cesium.Matrix4.multiplyByMatrix3(mat4, mat3, mat4);
+                var renderState = new Cesium.RenderState();
+                renderState.blending.enabled = false;
+                renderState.blending.equationAlpha = 32774;
+                renderState.blending.equationRgb = 32774;
+                renderState.blending.functionDestinationAlpha = 1;
+                renderState.blending.functionDestinationRgb = 769;
+                renderState.blending.functionSourceAlpha = 0;
+                renderState.blending.functionSourceRgb = 768;
+
+
+                var material = Cesium.Material.fromType('Color');
+                material.uniforms.color = new Cesium.Color(0,1,0,0.5);
+                var mat41 = Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(120.48941970596178,30.84980508826556, 0.0));
+                var hpr1 = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(-90), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
+                var mat31 = Cesium.Matrix3.fromHeadingPitchRoll(hpr1, new Cesium.Matrix3());
+                Cesium.Matrix4.multiplyByMatrix3(mat41, mat31, mat41);
+                layer.viewer.scene.primitives.add(new Cesium.Primitive({
+                    geometryInstances : [instance],
+                    modelMatrix: mat41,
+                    appearance : new Cesium.MaterialAppearance({
+                    translucent: true,
+                        material : material,
+                        renderState: renderState
+                    })
+                }));
+
+                // layer.viewer.scene.preUpdate.addEventListener(function(){
+                //    var pitch = Cesium.Math.toDegrees(layer.viewer.camera.pitch);
+                //    if (pitch < -70) {
+                //         layer.conditionAppearance.default.appearance.material.uniforms.alpha = 0.0001;
+                //    } else {
+                //     layer.conditionAppearance.default.appearance.material.uniforms.alpha = 0.0001;
+                //    }
+                // });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.located();
+                    // layer.conditionAppearance.default.appearance.material.uniforms.alpha = 0.0001;
+                    // layer.conditionAppearance.default.appearance.material.uniforms.color.red = 0;
+                    // layer.conditionAppearance.default.appearance.material.uniforms.color.green = 0.01;
+                    // layer.conditionAppearance.default.appearance.material.uniforms.color.blue = 0.005;
+                    // layer.conditionAppearance.default.appearance.material.uniforms.brightness = 1000000;
+
+                    layer.conditionAppearance.default.appearance.material.uniforms.alpha = 0.7;
+                    // layer.conditionAppearance.default.appearance.material.uniforms.color.red = 0.05;
+                    // layer.conditionAppearance.default.appearance.material.uniforms.color.green = 0.843;
+                    // layer.conditionAppearance.default.appearance.material.uniforms.color.blue = 0.517;
+                    // layer.conditionAppearance.default.appearance.material.uniforms.brightness = 2.5;
+                },2000);
+            };
+            function update(){
+                layer.updateData([
+                    {
+                        id: "stc2",
+                        lon: 121.52050254875654,
+                        lat: 31.224927649720218,
+                    },
+                ]);
+            }
+
+            function gk(){
+                layer.hide();
+                var ppp = layer.addedPri;
+                
+                var hpr1 = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(-90), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
+                var mat31 = Cesium.Matrix3.fromHeadingPitchRoll(hpr1, new Cesium.Matrix3());
+                var material = Cesium.Material.fromType('Color');
+                material.uniforms.color = new Cesium.Color(0,1,0,1.0);
+                var renderState = new Cesium.RenderState();
+                renderState.blending.enabled = true;
+                renderState.blending.equationAlpha = 32774;
+                renderState.blending.equationRgb = 32774;
+                renderState.blending.functionDestinationAlpha = 1;
+                renderState.blending.functionDestinationRgb = 769;
+                renderState.blending.functionSourceAlpha = 0;
+                renderState.blending.functionSourceRgb = 768;
+
+                for(var i=0;i<ppp.length;i++){
+                    var position = ppp[i].primitive.oldPosition;
+                    var mat41 = Cesium.Transforms.eastNorthUpToFixedFrame(position);
+                    Cesium.Matrix4.multiplyByMatrix3(mat41, mat31, mat41);
+
+                    var ellipsoid = new Cesium.EllipsoidGeometry({
+                        radii : new Cesium.Cartesian3(3000, 3000,3000),
+                        innerRadii: new Cesium.Cartesian3(0.1, 0.1, 0.1),
+                        minimumClock: Cesium.Math.toRadians(-180),
+                        maximumClock: Cesium.Math.toRadians(180),
+                        minimumCone: Cesium.Math.toRadians(90),
+                        maximumCone: Cesium.Math.toRadians(90.1),
+                    });
+                    // var geometry = EllipsoidGeometry.createGeometry(ellipsoid);
+                    var instance = new Cesium.GeometryInstance({
+                        geometry : ellipsoid,
+                    });
+
+                    Cesium.Matrix4.multiplyByMatrix3(mat41, mat31, mat41);
+                    layer.viewer.scene.primitives.add(new Cesium.Primitive({
+                        geometryInstances : [instance],
+                        modelMatrix: mat41,
+                        appearance : new Cesium.MaterialAppearance({
+                        translucent: true,
+                            material : material,
+                            renderState: renderState
+                        })
+                    }));
+                }
+            }
+        </script>
+    </body>
+</html>

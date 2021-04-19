@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+        <script src="./data/lines.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                        el: "app",
+                    });
+                window.kvmapInstance = kvmapInstance;
+                    
+
+                    function Options(){
+                        this.lineWidth = 20;
+                        this.alpha = 0.5;
+                        this.speed = 8;
+                        this.bloom = false;
+                        this.baseColor = '#7514ff';
+                        this.floodColor = '#defc00';
+                        this.groundLine = true;
+                    }
+                    var options = new Options();
+                    var gui = new dat.GUI();
+                    gui.add(options, 'lineWidth').min(1).max(100).step(1).onFinishChange(function(value){
+                        options.lineWidth = value;
+                        updateStyle();
+                    });
+                    gui.add(options, 'speed').min(1).max(10).step(1).onFinishChange(function(value){
+                        options.speed = value;
+                        updateStyle();
+                    });
+                    gui.add(options, 'bloom').onFinishChange(function(value){
+                        options.bloom = value;
+                        updateStyle();
+                    });
+
+                    gui.addColor(options, 'baseColor').onFinishChange(function(value){
+                        options.baseColor = value;
+                        updateStyle();
+                    });
+                    gui.addColor(options, 'floodColor').onFinishChange(function(value){
+                        options.floodColor = value;
+                        updateStyle();
+                    });
+                    gui.add(options, 'groundLine').onFinishChange(function(value){
+                        options.groundLine = value;
+                        updateStyle();
+                    });
+
+                    function updateStyle(){
+                        layer.updateStyle({
+                            lineWidth: options.lineWidth,
+                            alpha: options.alpha,
+                            speed: options.speed, // 流动速度
+                            bloom: options.bloom, // 是否泛光
+                            brightness: 2,
+                            groundLine: options.groundLine,
+                            condition:[
+                                {
+                                    condition: "{{other}} == 'stc'",
+                                    style: {
+                                        speed: 100
+                                    }
+                                }
+                            ]
+                        });
+                    }
+
+                    const stcData = [
+                        {
+                            id: "stc",
+                            lon:121.50843118073439,
+                            lat:31.236240694308645,
+                            height:0,
+                            other: "stc"
+                        }
+                        ,
+                        {
+                            id: "stc",
+                            lon:121.4949638274033,
+                            lat:31.23268692936606,
+                            height:0,
+                            other: "stc"
+                        },
+
+                        {
+                            id: "stc1",
+                            lon:121.55843118073439,
+                            lat:31.226240694308645,
+                            height:0
+                        }
+                        ,
+                        {
+                            id: "stc1",
+                            lon:121.4549638274033,
+                            lat:32.25268692936606,
+                            height:0
+                        },
+                        {
+                            id: "stc1",
+                            lon:121.4569638274033,
+                            lat:32.25268692936606,
+                            height:0
+                        }
+                    ]
+
+                    // var tool = new kvmap.KVMap.GeojsonParser();
+                    // var szlines1 = tool.getDataFromLayerType("Line", SZROAD);
+                    layer = kvmapInstance.layerManager.addLayer("stc", "ImageLine", {
+                        hooks: {
+                            startInit: () => {
+                                console.log("初始化开始！");
+                            },
+                            endInit: () => {
+                                console.log("初始化结束！");
+                            },
+                            startDealStyle: () => {
+                                console.log("开始处理样式！");
+                            },
+                            endDealStyle: () => {
+                                console.log("处理样式结束！");
+                            },
+                            startDealData: () => {
+                                console.log("开始处理数据！");
+                            },
+                            endDealData: () => {
+                                console.log("处理数据结束！");
+                            },
+                            startDestroy: () => {
+                                console.log("开始销毁！");
+                            },
+                            endDestroy: () => {
+                                console.log("销毁结束！");
+                            },
+                        },
+                        style: {
+                            lineWidth: 60,
+                            speed: 0.1, // 流动速度
+                            bloom: true, // 是否泛光
+                            baseColor: '#7514ff', // 线基础颜色,
+                            repeat: 2000,
+                            groundLine: true,
+                            condition:[
+                                {
+                                    condition: "{{other}} == 'stc'",
+                                    style: {
+                                        speed: 5
+                                    }
+                                }
+                            ]
+                        },
+                    });
+                    // layer.setData("http://10.67.0.56:9091/static/geojson/szRoad.geojson");
+                    layer.setData(stcData);
+                    // layer.addEntityLayer({
+                    //     type: "imageLine",
+                    //     data: "http://10.67.0.56:9091/static/geojson/szRoad.geojson",
+                    //     style: {
+                    //         lineWidth: 20,
+                    //         alpha: 0.5,
+                    //         speed: 0.1, // 流动速度
+                    //         bloom: true, // 是否泛光
+                    //         baseColor: '#7514ff', // 线基础颜色,
+                    //         repeat: {x:20,y:1}
+                    //     },
+                    // });
+
+                    window.layer = layer;
+            };
+        </script>
+    </body>
+</html>

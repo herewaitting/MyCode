@@ -1,0 +1,104 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: STC
+ * @Date: 2020-03-10 15:04:47
+ * @LastEditors: STC
+ * @LastEditTime: 2020-05-28 10:25:28
+ -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvmap.js"></script>
+    </head>
+    <body>
+        <div id="app">
+            <input type="button" value="固定点自转" id='rotateSelf'>
+            <input type="button" value="绕点旋转" id='rotateElse'>
+        </div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                document.getElementById("rotateSelf").addEventListener("click",function(){
+                    rotateSelf();
+                });
+                document.getElementById("rotateElse").addEventListener("click",function(){
+                    rotateElse();
+                });
+                if (!window.kvmap) {
+                    return;
+                }
+                const kvmapInstance = new kvmap.KVMap();
+                window.kvmapInstance = kvmapInstance;
+                var stc = kvmapInstance.initEarth(document.getElementById("app"), {
+                    cesiumViewerCfg: {},
+                    initMapOpts: {
+                        beautifyFilter: {
+                            blend: true,
+                            blendColor: "red",
+                            alpha: 0.5,
+                        },
+                        imageryProvider: "",
+                        initAnimation: {
+                            flyTo: false,
+                            earthRotate: false,
+                        },
+                        angleOfViewCfg: {
+                            lon: 121.60976973871132,
+                            lat: 31.109214738816334,
+                            height: 22160.604766729462,
+                            heading: 359.998126822114,
+                            pitch: -59.99968834636347,
+                        },
+                        tilesCfg: {
+                            // url:"https://lab.earthsdk.com/model/702aa950d03c11e99f7ddd77cbe22fea/tileset.json",
+                            url:"https://10.67.24.188:8081/3dtiles/shanghai/tileset.json",
+                            height: 0,
+                        },
+                            dubuggerMode: true,
+                    },
+                });
+                stc.then(function() {
+                    
+
+                    window.rotateSelf = function (){
+                        kvmapInstance.rotatePoint({
+                            type:'self',
+                            lon:121 + Math.random(),
+                            lat:31 + Math.random(),
+                            height:0,
+                        });
+                    }
+                    window.rotateElse = function (){
+                        kvmapInstance.rotatePoint({
+                            type:'else',
+                            lon:120 + Math.random(),
+                            lat:31 + Math.random(),
+                            height:0,
+                            distance:1000
+                        });
+                    }
+                    
+                });
+            };
+        </script>
+    </body>
+</html>

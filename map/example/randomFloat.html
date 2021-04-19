@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <img src="../static_stc/img/loading.svg" alt="" id="stcsvg">
+        <script>
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+
+                function Options(){
+                    this.color = "#ff00ff";
+                    this.lon = 120;
+                    this.lat = 30;
+                    this.height = 100;
+                    this.radius = 10000;
+                    this.potNum = 100000;
+                    this.limitHeight = 1000;
+                    this.brightness = 0;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                function updateStyle() {
+                    layer.updateStyle({
+                            color: options.color, //图片
+                            longitude: options.lon,
+                            latitude: options.lat,
+                            height: options.height,
+                            limitHeight: options.limitHeight,
+                            radius: options.radius,
+                            potNum: options.potNum,
+                            brightness: options.brightness
+                        });
+                }
+                gui.addColor(options, "color").onChange(function(value) {
+                    options.color = value;
+                    updateStyle();
+                });
+                gui.add(options, "lon").min(-180).max(180).step(0.2).onChange(function(value) {
+                    options.lon =value;
+                    updateStyle();
+                });
+                gui.add(options, "lat").min(-90).max(90).step(0.2).onChange(function(value) {
+                    options.lat =value;
+                    updateStyle();
+                });
+                gui.add(options, "height").min(0).max(5000).step(5).onChange(function(value) {
+                    options.height =value;
+                    updateStyle();
+                });
+                gui.add(options, "limitHeight").min(0.1).max(5000).step(5).onChange(function(value) {
+                    options.limitHeight =value;
+                    updateStyle();
+                });
+                gui.add(options, "radius").min(0.1).max(500000).step(5).onChange(function(value) {
+                    options.radius =value;
+                    updateStyle();
+                });
+                gui.add(options, "potNum").min(0.1).max(500000).step(5).onFinishChange(function(value) {
+                    options.potNum =value;
+                    updateStyle();
+                });
+                gui.add(options,"brightness").min(0).max(500).step(1).onChange(function(value){
+                        options.brightness = value;
+                        updateStyle();
+                    });
+
+                let layer = kvmapInstance.layerManager.addLayer("stc", "RandomFloatPoint", {
+                    style: {
+                        lon: 120,
+                        lat: 30,
+                        color: "red",
+                        radius: 5000,
+                        potNum: 100000,
+                        limitHeight: 500,
+                        brightness: 1,
+                        longitude: 120,
+                        latitude: 30,
+                        height: 0,
+                        floatDis: 500,
+                        speed: 1,
+                        maxDis: 10000,
+                    }
+                });
+
+                // layer.located();
+
+                window.layer = layer;
+                setTimeout(function(){
+                    layer.located();
+                },2000);
+            };
+        </script>
+    </body>
+</html>

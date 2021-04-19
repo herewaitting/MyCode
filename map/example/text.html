@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+        <script src="./data/sq.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <div id="text1" style="width:100px;height:50px;background-color: rgba(0.3,0.3,0.3,0.0);color:blue;">
+            <p>我是文本---111</p>
+        </div>
+        <div id="text2" style="width:100px;height:50px;background-color: rgba(0.3,0.3,0.3,0.0);color:red;">
+            <p>我是文本---222</p>
+        </div>
+        <div id="text3" style="width:100px;height:50px;background-color: rgba(0.3,0.3,0.3,0.0);color:green;">
+            <p>我是文本---333</p>
+        </div>
+        <script>
+            let stcLayer1,stcLayer2,stcLayer3,stcLayer4,stcLayer5,stcLayer6,stcLayer7;
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+
+                    
+
+                function updateStyle(){
+                    layer.updateStyle({
+                        fontSize: options.fontSize,
+                        fontType: options.fontType,
+                        fillColor: options.fillColor,
+                        scale: options.scale,
+                        height: options.height,
+                        showBackground: options.showBackground,
+                        backgroundColor: options.backgroundColor,
+                        bgPX: options.bgPX,
+                        bgPY: options.bgPY,
+                        offsetX: options.offsetX,
+                        offsetY: options.offsetY,
+                    });
+                }
+
+                function Options(){
+                    this.fontSize = 18;
+                    this.fontType = "";
+                    this.fillColor = "red";
+                    this.scale = 1;
+                    this.height = 0;
+                    this.showBackground = false;
+                    this.backgroundColor = "black";
+                    this.bgPX = 3;
+                    this.bgPY = 5;
+                    this.offsetX = 0;
+                    this.offsetY = 0;
+                }
+                var options = new Options();
+                var gui = new dat.GUI();
+                // gui.addColor(options,"color").onFinishChange(function(value){
+                //     options.color = value;
+                //     updateStyle();
+                // });
+                gui.add(options,"fontSize").min(10).max(30).step(1).onChange(function(value){
+                    options.fontSize = value;
+                    updateStyle();
+                });
+                gui.add(options,"fontType").onChange(function(value){
+                    options.fontType = value;
+                    updateStyle();
+                });
+                gui.add(options,"fillColor").onChange(function(value){
+                    options.fillColor = value;
+                    updateStyle();
+                });
+                gui.add(options,"scale").min(0.1).max(5).step(0.1).onChange(function(value){
+                    options.scale = value;
+                    updateStyle();
+                });
+                gui.add(options,"height").min(0).max(300).step(1).onChange(function(value){
+                    options.height = value;
+                    updateStyle();
+                });
+                gui.add(options,"showBackground").onChange(function(value){
+                    options.showBackground = value;
+                    updateStyle();
+                });
+                gui.add(options,"backgroundColor").onChange(function(value){
+                    options.backgroundColor = value;
+                    updateStyle();
+                });
+                gui.add(options,"bgPX").min(0).max(10).step(1).onChange(function(value){
+                    options.bgPX = value;
+                    updateStyle();
+                });
+                gui.add(options,"bgPY").min(0).max(10).step(1).onChange(function(value){
+                    options.bgPY = value;
+                    updateStyle();
+                });
+                gui.add(options,"offsetX").min(-10).max(10).step(1).onChange(function(value){
+                    options.offsetX = value;
+                    updateStyle();
+                });
+                gui.add(options,"offsetY").min(-10).max(10).step(1).onChange(function(value){
+                    options.offsetY = value;
+                    updateStyle();
+                });
+                let layer =  kvmapInstance.layerManager.addLayer("stc", "TextLabel", {
+                    style: {
+                        fontSize: 18,
+                        fillColor: "red",
+                        scale: 1,
+                        height: 0,
+                        showBackground: true,
+                        backgroundColor: "black",
+                        bgPX: 3,
+                        bgPY: 5,
+                        offsetX: 0,
+                        offsetY: 0,
+                        near: 0,
+                        far: 1000000,
+                        ratio: 1,
+                    }
+                });
+                layer.setData([
+                        {
+                            longitude: 121.49520943105013,
+                            latitude: 31.2419239558996,
+                            height: 500,
+                            text: "史廷春",
+                            id: "stc",
+                        }
+                    ]);
+                window.layer = layer;
+                setTimeout(function(){
+                    
+                    layer.located();
+                },2000);
+
+                // console.log(shequ);
+                // const material = Cesium.Material.fromType("Color");
+                // const app = new Cesium.PolylineMaterialAppearance({
+                //     material: material,
+                // })
+                // const sqinstance = [];
+                // const billC = new Cesium.LabelCollection();
+                // shequ.forEach((sq)=> {
+                //     const potsArr = sq.cList;
+                //     potsArr.forEach((li) => {
+                //         const line = new Cesium.GeometryInstance({
+                //             geometry: new Cesium.PolylineGeometry({
+                //                 positions: li,
+                //                 width: 2,
+                //             }),
+                //         });
+                //         sqinstance.push(line);
+                //     });
+                    
+
+                //     const billOpt = {
+                //         text: sq.name,
+                //         id : sq.id,
+                //         position : sq.center,
+                //         fillColor : Cesium.Color.WHITE,
+                //         font : `20px sans-serif`,
+                //         disableDepthTestDistance: Number.MAX_VALUE,
+                //         scaleByDistance: new Cesium.NearFarScalar(1000, 1, 1000000, 0.5),
+                //         distanceDisplayCondition: new Cesium.DistanceDisplayCondition(1000, 1000000),
+                //         verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                //         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                //     };
+                //     billC.add(billOpt);
+                // });
+                // const primitive = new Cesium.Primitive({
+                //     geometryInstances: sqinstance,
+                // });
+                // primitive.appearance = app;
+
+
+                // kvmapInstance.viewer.scene.primitives.add(primitive);
+                // window.billC = kvmapInstance.viewer.scene.primitives.add(billC);
+            };
+        </script>
+    </body>
+</html>

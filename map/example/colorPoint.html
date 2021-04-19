@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>史廷春Demo</title>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+            html,
+            body,
+            #app {
+                position: relative;
+                height: 100%;
+            }
+            /* body {
+                transform: scaleX(0.8) scaleY(0.8);
+            } */
+        </style>
+        <link rel="stylesheet" href="../CesiumUnminified/Widgets/Widgets.css" />
+        <script type="text/javascript" src="./dataGui.js"></script>
+        <script src="../CesiumUnminified/Cesium.js"></script>
+        <script src="/kvscene.js"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script>
+
+
+const CesiumIonDefaultToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNjgwYzc1ZS0wNmVjLTRhYWItYmUyMy0yNDM2YWFjOTE1ZjciLCJpZCI6MzQ0NjEsImlhdCI6MTYwMDMzMDg3NH0.7QJwJRUkzLdkDU5B7TiZ-7Ib3quVbpuDDxqy0s9Wxi4";
+
+            Cesium.ExpandBySTC.canvasScale = new Cesium.Cartesian2(0.8,0.8)
+            function Options(){
+                this.color = "#ffffff";
+                this.pixelSize = 5;
+                this.bloom = true;
+            }
+
+            window.onload = () => {
+                if (!window.kvscene) {
+                    return;
+                }
+                const kvmapInstance = new kvscene.KVScene3D({
+                    el: "app"
+                });
+                window.kvmapInstance = kvmapInstance;
+                
+                var options = new Options();
+                var gui = new dat.GUI();
+
+
+                gui.add(options, 'pixelSize').min(1).max(50).step(2).onChange(function(value){
+                    options.pixelSize = value;
+                    updateStyle();
+                });
+
+                gui.addColor(options, 'color').onFinishChange(function(value){
+                    options.color = value;
+                    updateStyle();
+                });
+                // gui.add(options, 'bloom').onFinishChange(function(value){
+                //     options.bloom = value;
+                //     updateStyle();
+                // });
+
+                function updateStyle(){
+                    layer.updateStyle( {
+                        color: options.color, //模型
+                        pixelSize: options.pixelSize, //缩放
+                        bloom: options.bloom,
+                        condition: [
+                            {
+                                condition: "{{id}} == 'point_f1'",
+                                style: {
+                                    color: "yellow",
+                                    pixelSize: 50,
+                                }
+                            }
+                        ]
+                    });
+                }
+                    
+
+                    let layer = kvmapInstance.layerManager.addLayer("stc", "ColorPoint", {
+                        style: {
+                            color: "white",
+                            pixelSize: 5,
+                            condition: [
+                                {
+                                    condition: "{{id}} == 'point_f1'",
+                                    style: {
+                                        color: "blue",
+                                        pixelSize: 20,
+                                    }
+                                }
+                            ]
+                        }
+                    });
+                    // layer.setData("http://10.67.0.56:9091/static/geojson/point.json");
+                    layer.setData("http://10.67.0.56:9091/static/geojson/point.json");
+                    // layer.setData([
+                    //             {
+                    //                 id: "stc2",
+                    //                 lon: 121.520 + Math.random() / 10,
+                    //                 lat: 31.224927649720218 + Math.random() / 10,
+                    //             },
+                    //             {
+                    //                 id: "stc3",
+                    //                 lon: 121.5256254875654 + Math.random() / 10,
+                    //                 lat: 31.224927649720218 + Math.random() / 10,
+                    //             },
+                    //         ]);
+                    // layer.addEntityLayer( {
+                    //     type: "colorPoint",
+                    //     data:"http://10.67.0.56:9091/static/geojson/point.json",
+                    //     style: {
+                    //         color: "white",
+                    //         pixelSize: 50,
+                    //         condition: [
+                    //             {
+                    //                 condition: "{{id}} == 'stc1'",
+                    //                 style: {
+                    //                     color: "red",
+                    //                 }
+                    //             }
+                    //         ]
+                    //     },
+                    // });
+
+                    window.layer = layer;
+                    setTimeout(function(){
+                        layer.located();
+                    },2000);
+            };
+            function update(){
+                layer.updateData([
+                                {
+                                    id: "stc2",
+                                    lon: 121.520 + Math.random() / 10,
+                                    lat: 31.224927649720218 + Math.random() / 10,
+                                },
+                                {
+                                    id: "stc3",
+                                    lon: 121.5256254875654 + Math.random() / 10,
+                                    lat: 31.224927649720218 + Math.random() / 10,
+                                },
+                            ]);
+            }
+        </script>
+    </body>
+</html>
