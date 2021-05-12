@@ -85,7 +85,7 @@
     "gltf-pipeline": "^2.1.9",
     "html2canvas": "^1.0.0-rc.5",
     "libgif": "0.0.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "vuepress": "^1.6.0",
     "stream-parser": "^0.3.1",
     "thunks": "^4.9.5"
